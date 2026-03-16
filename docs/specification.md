@@ -27,7 +27,7 @@ Flow:
 A rough wireframe view of the game can be seen below 
 (the final game will use stylized pixel art):
 
-[image1]
+<img width="842" height="608" alt="image" src="https://github.com/user-attachments/assets/37409ae8-3272-4410-a245-c20b46e4e7da" />
 
 **Hotbar**: Any item in the hotbar can be clicked and dragged onto other elements. 
 For example dragging the scythe onto the farm will harvest the crops. 
@@ -53,4 +53,5 @@ three times will bring up a prompt to reset the farm progress.
 ## Further development
 
 - Separate farm save files to allow for multiple farms without resets
-- More content: buildings, items (can be pretty easy to do with a data-driven system)
+- More content: buildings, crops, items (can be pretty easy to do with a data-driven system)
+- More tools, for example a hose to water crops
