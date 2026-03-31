@@ -1,0 +1,40 @@
+{
+  "save_version": 1,
+  "data": {
+    "inventory": {
+      "items": [
+        {
+          "id": "soy",
+          "amount": 1
+        }
+      ]
+    },
+    "farm": {
+      "coins": 10,
+      "crops": [
+        {
+          "slot": 0,
+          "id": "soy",
+          "planted_at": 1000
+        }
+      ],
+      "recipes": [
+        {
+          "machine_id": "juice_press",
+          "id": "berry_juice",
+          "started_at": 1000
+        }
+      ]
+    },
+    "orders": [
+      {
+        "requirements": [
+          {
+            "id": "berry_juice",
+            "amount": 1
+          }
+        ]
+      }
+    ]
+  }
+}

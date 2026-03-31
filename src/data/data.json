@@ -1,0 +1,94 @@
+{
+  "crops": [
+    {
+      "id": "wheat",
+      "name": "Wheat",
+      "time": 5
+    },
+    {
+      "id": "soy",
+      "name": "Soy",
+      "time": 10
+    },
+    {
+      "id": "berry",
+      "name": "Berry",
+      "time": 15
+    }
+  ],
+  "recipes": [
+    {
+      "id": "berry_juice",
+      "name": "Berry Juice",
+      "time": 10,
+      "recipe": [
+        {
+          "id": "berry",
+          "amount": 2
+        }
+      ]
+    },
+    {
+      "id": "smoothie",
+      "name": "Smoothie",
+      "time": 10,
+      "recipe": [
+        {
+          "id": "berry",
+          "amount": 1
+        },
+        {
+          "id": "soy"
+        }
+      ]
+    },
+    {
+      "id": "berry_bread",
+      "name": "Berry Bread",
+      "time": 10,
+      "recipe": [
+        {
+          "id": "berry",
+          "amount": 1
+        },
+        {
+          "id": "wheat",
+          "amount": 1
+        }
+      ]
+    },
+    {
+      "id": "soy_bun",
+      "name": "Soy Bun",
+      "time": 10,
+      "recipe": [
+        {
+          "id": "soy",
+          "amount": 1
+        },
+        {
+          "id": "wheat",
+          "amount": 1
+        }
+      ]
+    }
+  ],
+  "machines": [
+    {
+      "id": "juice_press",
+      "name": "Juice Press",
+      "recipes": [
+        "berry_juice",
+        "smoothie"
+      ]
+    },
+    {
+      "id": "bakery",
+      "name": "Bakery",
+      "recipes": [
+        "berry_bread",
+        "soy_bun"
+      ]
+    }
+  ]
+}

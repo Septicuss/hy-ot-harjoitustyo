@@ -1,0 +1,78 @@
+class GameElement:
+    def __init__(self, id: str, name: str):
+        self.id = id
+        self.name = name
+
+class ItemReference:
+    def __init__(self, id: str, amount: int):
+        self.id = id
+        self.amount = amount
+
+    def __repr__(self):
+        return f"ItemReference({self.id}, {self.amount})"
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(
+            id = data["id"],
+            amount = data.get("amount", 1)
+        )
+
+
+class Crop(GameElement):
+    def __init__(self, id: str, name: str, time: float):
+        super().__init__(id, name)
+        self.id = id
+        self.name = name
+        self.growth_time = time
+
+    def __repr__(self):
+        return f"Crop({self.id}, {self.name}, {self.growth_time})"
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(
+            id = data["id"],
+            name = data["name"],
+            time = data["time"]
+        )
+
+
+class Recipe(GameElement):
+    def __init__(self, id: str, name: str, time: float, recipe: list[ItemReference]):
+        super().__init__(id, name)
+        self.id = id
+        self.name = name
+        self.time = time
+        self.recipe = recipe
+
+    def __repr__(self):
+        return f"Recipe({self.id}, {self.name}, {self.time}, {self.recipe})"
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(
+            id = data["id"],
+            name = data["name"],
+            time = data["time"],
+            recipe = [ItemReference.from_dict(recipe_data) for recipe_data in data["recipe"]]
+        )
+
+
+class Machine(GameElement):
+    def __init__(self, id: str, name: str, recipes: list[ItemReference]):
+        super().__init__(id, name)
+        self.id = id
+        self.name = name
+        self.recipes = recipes
+
+    def __repr__(self):
+        return f"Machine({self.id}, {self.name})"
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(
+            id = data["id"],
+            name = data["name"],
+            recipes = [ItemReference.from_dict({"id": recipe_id}) for recipe_id in data["recipes"]]
+        )
