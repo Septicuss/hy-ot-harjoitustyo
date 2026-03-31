@@ -55,3 +55,4 @@ three times will bring up a prompt to reset the farm progress.
 - Separate farm save files to allow for multiple farms without resets
 - More content: buildings, crops, items (can be pretty easy to do with a data-driven system)
 - More tools, for example a hose to water crops
+- Farming statistics
