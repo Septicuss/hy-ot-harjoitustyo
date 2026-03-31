@@ -2,11 +2,12 @@ import json
 from pathlib import Path
 from typing import Self
 
-from data.types import (
+from data.game_elements import (
     Crop,
     Recipe,
     Machine, GameElement
 )
+
 
 class GameData:
     def __init__(self, crops: list[Crop], recipes: list[Recipe], machines: list[Machine]):
@@ -51,7 +52,7 @@ class GameData:
     @classmethod
     def __validate_or_throw(cls, game_data: Self):
 
-        # Ensure that each game element ID is unique
+        # 1. Ensure that each game element ID is unique
         def ensure_unique_ids(elements: list[GameElement]):
             unique_ids = set([element.id for element in elements])
             if len(unique_ids) != len(elements):
@@ -61,13 +62,15 @@ class GameData:
         ensure_unique_ids(game_data.recipes)
         ensure_unique_ids(game_data.machines)
 
-        # Ensure that each item reference exists
-        all_item_ids = [crop.id for crop in [*game_data.crops, *game_data.recipes, *game_data.machines]]
+        # 2. Ensure that each item reference exists
+        all_item_ids = [element.id for element in [*game_data.crops, *game_data.recipes, *game_data.machines]]
 
         for recipe in game_data.recipes:
             for recipe_reference in recipe.recipe:
                 if recipe_reference.id not in all_item_ids:
-                    raise ValueError(f"recipe {recipe.id} uses an unknown reference {recipe_reference.id}")
+                    raise ValueError(f"recipe '{recipe.id}' uses an unknown reference '{recipe_reference.id}'")
 
-
-        pass
+        for machine in game_data.machines:
+            for recipe_id in machine.recipes:
+                if recipe_id.id not in all_item_ids:
+                    raise ValueError(f"machine '{machine.id}' uses an unknown reference '{recipe_id.id}'")
