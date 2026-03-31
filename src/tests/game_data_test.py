@@ -20,6 +20,12 @@ class TestGameData(unittest.TestCase):
         }
         self.assertRaisesRegex(ValueError, "berry", GameData.load_from_json, json.dumps(data))
 
+        # Machines recipe ingredient has a non-existing "berry"
+        data = {
+            "machines": [{"id": "test", "name": "test", "recipes": ["berry"]}],
+        }
+        self.assertRaisesRegex(ValueError, "berry", GameData.load_from_json, json.dumps(data))
+
     def test_duplicate_id_raises_error(self):
         # Both crops have the same id
         data = {
