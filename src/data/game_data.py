@@ -10,6 +10,12 @@ from data.game_elements import (
 
 
 class GameData:
+    """Represents a class which holds loaded game data describing which crops,
+     recipes and machines are present in the game.
+
+    As arguments takes a list of each type of game element.
+    """
+
     def __init__(self, crops: list[Crop], recipes: list[Recipe], machines: list[Machine]):
         self.crops = crops
         self.recipes = recipes
@@ -17,12 +23,19 @@ class GameData:
 
     @classmethod
     def load_from_file(cls, file_path: str) -> Self | None:
+        """Loads game JSON data into a GameData class from a JSON file"""
+
         path = Path(file_path)
         with path.open() as file:
             return GameData.load_from_json(json_data=str(file.read()))
 
     @classmethod
     def load_from_json(cls, json_data: str) -> Self | None:
+        """Loads game data into a GameData class from a JSON string
+
+        This method will throw a ValueError if data validation fails.
+        """
+
         data = json.loads(json_data)
 
         loaded_crops = []
@@ -51,6 +64,7 @@ class GameData:
 
     @classmethod
     def __validate_or_throw(cls, game_data: Self):
+        """Internal method to validate the loaded game data so that it can be safely used at runtime."""
 
         # 1. Ensure that each game element ID is unique
         def ensure_unique_ids(elements: list[GameElement]):
