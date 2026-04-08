@@ -1,4 +1,7 @@
 {
+  "constants": {
+    "default_coins": 10
+  },
   "crops": [
     {
       "id": "wheat",

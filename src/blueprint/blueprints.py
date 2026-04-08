@@ -1,3 +1,13 @@
+class ConstantsBlueprint:
+    def __init__(self, default_coins: int = 0):
+        self.default_coins = default_coins
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(
+            default_coins = int(data["default_coins"])
+        )
+
 class GameElementBlueprint:
     def __init__(self, id: str, name: str):
         self.id = id

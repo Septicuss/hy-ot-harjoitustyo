@@ -6,7 +6,8 @@ from blueprint.blueprints import (
     CropBlueprint,
     RecipeBlueprint,
     MachineBlueprint,
-    GameElementBlueprint
+    GameElementBlueprint,
+    ConstantsBlueprint
 )
 
 
@@ -15,12 +16,14 @@ class GameBlueprint:
     As arguments takes a list of each type of game element blueprint.
 
     Args:
+        constants: ConstantsBlueprint
         crops: list of CropBlueprint
         recipes: list of RecipeBlueprint
         machines: list of MachineBlueprint
     """
 
-    def __init__(self, crops: list[CropBlueprint], recipes: list[RecipeBlueprint], machines: list[MachineBlueprint]):
+    def __init__(self, constants: ConstantsBlueprint, crops: list[CropBlueprint], recipes: list[RecipeBlueprint], machines: list[MachineBlueprint]):
+        self.constants = constants
         self.crops = crops
         self.recipes = recipes
         self.machines = machines
@@ -45,6 +48,7 @@ class GameBlueprint:
         loaded_crops = []
         loaded_recipes = []
         loaded_machines = []
+        constants = ConstantsBlueprint()
 
         if "crops" in data:
             loaded_crops = [CropBlueprint.from_dict(crop_data) for crop_data in data["crops"]]
@@ -55,7 +59,11 @@ class GameBlueprint:
         if "machines" in data:
             loaded_machines = [MachineBlueprint.from_dict(machine_data) for machine_data in data["machines"]]
 
+        if "constants" in data:
+            constants = ConstantsBlueprint.from_dict(data["constants"])
+
         game_blueprint = GameBlueprint(
+            constants,
             loaded_crops,
             loaded_recipes,
             loaded_machines
