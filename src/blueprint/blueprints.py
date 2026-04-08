@@ -21,7 +21,7 @@ class ItemReference:
 class ConstantsBlueprint:
     def __init__(self, default_coins: int = 0, default_items: list[ItemReference]=None):
         self.default_coins = default_coins
-        self.default_items = [] if default_items is None else default_items
+        self.default_items: list[ItemReference] = [] if default_items is None else default_items
 
     @classmethod
     def from_dict(cls, data):
