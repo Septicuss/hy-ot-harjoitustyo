@@ -1,6 +1,12 @@
 {
   "constants": {
-    "default_coins": 10
+    "default_coins": 10,
+    "default_items": [
+      {
+        "id": "wheat",
+        "amount": 2
+      }
+    ]
   },
   "crops": [
     {

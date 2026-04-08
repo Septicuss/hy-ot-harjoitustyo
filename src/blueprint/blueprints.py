@@ -1,13 +1,3 @@
-class ConstantsBlueprint:
-    def __init__(self, default_coins: int = 0):
-        self.default_coins = default_coins
-
-    @classmethod
-    def from_dict(cls, data):
-        return cls(
-            default_coins = int(data["default_coins"])
-        )
-
 class GameElementBlueprint:
     def __init__(self, id: str, name: str):
         self.id = id
@@ -28,6 +18,17 @@ class ItemReference:
             amount = data.get("amount", 1)
         )
 
+class ConstantsBlueprint:
+    def __init__(self, default_coins: int = 0, default_items: list[ItemReference]=None):
+        self.default_coins = default_coins
+        self.default_items = [] if default_items is None else default_items
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(
+            default_coins = int(data["default_coins"]),
+            default_items = [ItemReference.from_dict(item_data) for item_data in data["default_items"]]
+        )
 
 class CropBlueprint(GameElementBlueprint):
     def __init__(self, id: str, name: str, time: float):
