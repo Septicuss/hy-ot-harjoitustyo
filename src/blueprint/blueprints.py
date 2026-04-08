@@ -1,4 +1,4 @@
-class GameElement:
+class GameElementBlueprint:
     def __init__(self, id: str, name: str):
         self.id = id
         self.name = name
@@ -19,7 +19,7 @@ class ItemReference:
         )
 
 
-class Crop(GameElement):
+class CropBlueprint(GameElementBlueprint):
     def __init__(self, id: str, name: str, time: float):
         super().__init__(id, name)
         self.id = id
@@ -27,7 +27,7 @@ class Crop(GameElement):
         self.growth_time = time
 
     def __repr__(self):
-        return f"Crop({self.id}, {self.name}, {self.growth_time})"
+        return f"CropBlueprint({self.id}, {self.name}, {self.growth_time})"
 
     @classmethod
     def from_dict(cls, data):
@@ -38,7 +38,7 @@ class Crop(GameElement):
         )
 
 
-class Recipe(GameElement):
+class RecipeBlueprint(GameElementBlueprint):
     def __init__(self, id: str, name: str, time: float, recipe: list[ItemReference]):
         super().__init__(id, name)
         self.id = id
@@ -47,7 +47,7 @@ class Recipe(GameElement):
         self.recipe = recipe
 
     def __repr__(self):
-        return f"Recipe({self.id}, {self.name}, {self.time}, {self.recipe})"
+        return f"RecipeBlueprint({self.id}, {self.name}, {self.time}, {self.recipe})"
 
     @classmethod
     def from_dict(cls, data):
@@ -59,7 +59,7 @@ class Recipe(GameElement):
         )
 
 
-class Machine(GameElement):
+class MachineBlueprint(GameElementBlueprint):
     def __init__(self, id: str, name: str, recipes: list[ItemReference]):
         super().__init__(id, name)
         self.id = id
@@ -67,7 +67,7 @@ class Machine(GameElement):
         self.recipes = recipes
 
     def __repr__(self):
-        return f"Machine({self.id}, {self.name})"
+        return f"MachineBlueprint({self.id}, {self.name})"
 
     @classmethod
     def from_dict(cls, data):
