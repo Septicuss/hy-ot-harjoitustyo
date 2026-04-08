@@ -1,6 +1,6 @@
 from blueprint.game_blueprint import GameBlueprint
 
-class Game:
+class GameState:
     def __init__(self, blueprint: GameBlueprint):
         self.blueprint = blueprint
         self.inventory = Inventory()
@@ -35,6 +35,6 @@ class Inventory:
 
 class Farm:
 
-    def __init__(self, game: Game):
+    def __init__(self, game: GameState):
         self.coins = game.blueprint.constants.default_coins
 

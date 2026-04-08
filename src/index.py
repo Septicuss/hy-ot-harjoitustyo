@@ -1,12 +1,12 @@
 from blueprint.game_blueprint import GameBlueprint
-from game.game import Game
+from state.game_state import GameState
 from ui.game_ui import GameUI
 
 
 def main():
     data = GameBlueprint.load_from_file("src/blueprint/blueprint.json")
-    game = Game(data)
-    ui = GameUI(game)
+    state = GameState(data)
+    ui = GameUI(state)
     ui.start()
 
 if __name__ == '__main__':

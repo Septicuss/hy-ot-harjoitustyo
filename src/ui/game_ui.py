@@ -1,6 +1,6 @@
 import pygame
 
-from game.game import Game
+from state.game_state import GameState
 
 
 class GameAssets:
@@ -9,7 +9,7 @@ class GameAssets:
 
 class GameUI:
 
-    def __init__(self, game: Game):
+    def __init__(self, game: GameState):
         self.screen = None
         self.assets = None
         self.game = game
