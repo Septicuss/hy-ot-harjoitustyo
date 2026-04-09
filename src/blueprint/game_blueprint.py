@@ -24,9 +24,23 @@ class GameBlueprint:
 
     def __init__(self, constants: ConstantsBlueprint, crops: list[CropBlueprint], recipes: list[RecipeBlueprint], machines: list[MachineBlueprint]):
         self.constants = constants
-        self.crops = crops
-        self.recipes = recipes
-        self.machines = machines
+        self.crops: dict[str, CropBlueprint] = {crop.id: crop for crop in crops}
+        self.recipes: dict[str, RecipeBlueprint] = {recipe.id: recipe for recipe in recipes}
+        self.machines: dict[str, MachineBlueprint] = {machine.id: machine for machine in machines}
+
+    def get_required_machine_slots(self, machine_id: str) -> int:
+        machine: MachineBlueprint = self.machines.get(machine_id)
+
+        if not machine:
+            raise ValueError(f"Tried to get the required slots of a non-existent machine '{machine_id}'")
+
+        required_slots: int = 0
+
+        for recipe_reference in machine.recipes:
+            recipe_blueprint = self.recipes.get(recipe_reference.id)
+            required_slots = max(required_slots, len(recipe_blueprint.recipe))
+
+        return required_slots
 
     @classmethod
     def load_from_file(cls, file_path: str) -> Self | None:
@@ -78,25 +92,30 @@ class GameBlueprint:
     def __validate_or_throw(cls, game_blueprint: Self):
         """Internal method to validate the loaded game blueprint so that it can be safely used at runtime."""
 
-        # 1. Ensure that each game element ID is unique
+        # 1. Ensure that all game element IDs are unique
         def ensure_unique_ids(elements: list[GameElementBlueprint]):
             unique_ids = set([element.id for element in elements])
             if len(unique_ids) != len(elements):
                 raise ValueError("duplicate ids")
 
-        ensure_unique_ids(game_blueprint.crops)
-        ensure_unique_ids(game_blueprint.recipes)
-        ensure_unique_ids(game_blueprint.machines)
+        all_elements: list[GameElementBlueprint] = [
+            *game_blueprint.crops.values(),
+            *game_blueprint.recipes.values(),
+            *game_blueprint.machines.values()
+        ]
+
+        ensure_unique_ids(all_elements)
 
         # 2. Ensure that each item reference exists
-        all_item_ids = [element.id for element in [*game_blueprint.crops, *game_blueprint.recipes, *game_blueprint.machines]]
 
-        for recipe in game_blueprint.recipes:
+        all_ids: list[str] = [element.id for element in all_elements]
+
+        for recipe in game_blueprint.recipes.values():
             for recipe_reference in recipe.recipe:
-                if recipe_reference.id not in all_item_ids:
+                if recipe_reference.id not in all_ids:
                     raise ValueError(f"recipe '{recipe.id}' uses an unknown reference '{recipe_reference.id}'")
 
-        for machine in game_blueprint.machines:
+        for machine in game_blueprint.machines.values():
             for recipe_id in machine.recipes:
-                if recipe_id.id not in all_item_ids:
+                if recipe_id.id not in all_ids:
                     raise ValueError(f"machine '{machine.id}' uses an unknown reference '{recipe_id.id}'")
