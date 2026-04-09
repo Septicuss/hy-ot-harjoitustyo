@@ -3,13 +3,13 @@ import unittest
 
 from blueprint.game_blueprint import GameBlueprint
 
-default_data_path = "src/blueprint/blueprint.json"
+default_blueprint_path = "src/blueprint/blueprint.json"
 
-class TestGameData(unittest.TestCase):
+class TestGameBlueprint(unittest.TestCase):
 
-    def test_default_game_data_valid(self):
+    def test_default_game_blueprint_valid(self):
         try:
-            GameBlueprint.load_from_file(default_data_path)
+            GameBlueprint.load_from_file(default_blueprint_path)
         except ValueError as error:
             self.fail("default game blueprint failed validation: " +  str(error))
 
