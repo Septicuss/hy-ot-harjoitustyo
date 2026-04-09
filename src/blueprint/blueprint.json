@@ -8,6 +8,34 @@
       }
     ]
   },
+  "sprites": {
+    "coin": [3, 3],
+
+    "wheat": [0, 0],
+    "wheat_stage_1": [1, 0],
+    "wheat_stage_2": [2, 0],
+    "wheat_stage_3": [3, 0],
+
+    "soy": [0, 1],
+    "soy_stage_1": [1, 1],
+    "soy_stage_2": [2, 1],
+    "soy_stage_3": [3, 1],
+
+    "berry": [0, 2],
+    "berry_stage_1": [1, 2],
+    "berry_stage_2": [2, 2],
+    "berry_stage_3": [3, 2],
+
+    "berry_juice": [4, 0],
+    "berry_bread": [5, 0],
+    "smoothie": [4, 1],
+    "soy_bun": [5, 1],
+
+    "juice_press": [4, 2],
+    "juice_press_busy": [5, 2],
+    "bakery": [4, 3],
+    "bakery_busy": [5, 3]
+  },
   "crops": [
     {
       "id": "wheat",

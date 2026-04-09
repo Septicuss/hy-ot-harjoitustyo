@@ -1,4 +1,5 @@
 import json
+from dataclasses import fields
 from pathlib import Path
 from typing import Self
 
@@ -7,23 +8,19 @@ from blueprint.blueprints import (
     RecipeBlueprint,
     MachineBlueprint,
     GameElementBlueprint,
-    ConstantsBlueprint
+    ConstantsBlueprint,
+    SpritesBlueprint
 )
 
 
 class GameBlueprint:
     """Represents a blueprint, containing smaller blueprints of in-game elements.
     As arguments takes a list of each type of game element blueprint.
-
-    Args:
-        constants: ConstantsBlueprint
-        crops: list of CropBlueprint
-        recipes: list of RecipeBlueprint
-        machines: list of MachineBlueprint
     """
 
-    def __init__(self, constants: ConstantsBlueprint, crops: list[CropBlueprint], recipes: list[RecipeBlueprint], machines: list[MachineBlueprint]):
+    def __init__(self, constants: ConstantsBlueprint, sprites: SpritesBlueprint, crops: list[CropBlueprint], recipes: list[RecipeBlueprint], machines: list[MachineBlueprint]):
         self.constants = constants
+        self.sprites = sprites
         self.crops: dict[str, CropBlueprint] = {crop.id: crop for crop in crops}
         self.recipes: dict[str, RecipeBlueprint] = {recipe.id: recipe for recipe in recipes}
         self.machines: dict[str, MachineBlueprint] = {machine.id: machine for machine in machines}
@@ -43,7 +40,7 @@ class GameBlueprint:
         return required_slots
 
     @classmethod
-    def load_from_file(cls, file_path: str) -> Self | None:
+    def load_from_file(cls, file_path: str, ignore_sprites: bool = False) -> Self | None:
         """Loads game JSON blueprint into a GameData class from a JSON file"""
 
         path = Path(file_path)
@@ -51,7 +48,7 @@ class GameBlueprint:
             return GameBlueprint.load_from_json(json_data=str(file.read()))
 
     @classmethod
-    def load_from_json(cls, json_data: str) -> Self | None:
+    def load_from_json(cls, json_data: str, ignore_sprites: bool = False) -> Self | None:
         """Loads game blueprint into a GameBlueprint class from a JSON string
 
         This method will throw a ValueError if blueprint validation fails.
@@ -63,6 +60,7 @@ class GameBlueprint:
         loaded_recipes = []
         loaded_machines = []
         constants = ConstantsBlueprint()
+        sprites = SpritesBlueprint({})
 
         if "crops" in data:
             loaded_crops = [CropBlueprint.from_dict(crop_data) for crop_data in data["crops"]]
@@ -76,20 +74,24 @@ class GameBlueprint:
         if "constants" in data:
             constants = ConstantsBlueprint.from_dict(data["constants"])
 
+        if "sprites" in data:
+            sprites = SpritesBlueprint.from_dict(data["sprites"])
+
         game_blueprint = GameBlueprint(
             constants,
+            sprites,
             loaded_crops,
             loaded_recipes,
             loaded_machines
         )
 
         # Validate loaded blueprint
-        cls.__validate_or_throw(game_blueprint)
+        cls.__validate_or_throw(game_blueprint, ignore_sprites)
 
         return game_blueprint
 
     @classmethod
-    def __validate_or_throw(cls, game_blueprint: Self):
+    def __validate_or_throw(cls, game_blueprint: Self, ignore_sprites: bool = False):
         """Internal method to validate the loaded game blueprint so that it can be safely used at runtime."""
 
         # 1. Ensure that all game element IDs are unique
@@ -119,3 +121,36 @@ class GameBlueprint:
             for recipe_id in machine.recipes:
                 if recipe_id.id not in all_ids:
                     raise ValueError(f"machine '{machine.id}' uses an unknown reference '{recipe_id.id}'")
+
+
+        # 3. Ensure that all elements have sprites
+        if not ignore_sprites:
+            def validate_sprites(type: str, ids: list[str], get_sprites_func):
+                for id in ids:
+                    sprites = get_sprites_func(id)
+
+                    for field in fields(sprites):
+                        if getattr(sprites, field.name) is None:
+                            sprite_name = f'{id}{f'_{field.name}' if field.name != 'main' else ''}'
+                            raise ValueError(f"{type} '{id}' did not have sprite '{sprite_name}'")
+
+            # Validate crops
+            validate_sprites(
+                "crop",
+                list(game_blueprint.crops.keys()),
+                game_blueprint.sprites.get_crop_sprites
+            )
+
+            # Validate machines
+            validate_sprites(
+                "machine",
+                list(game_blueprint.machines.keys()),
+                game_blueprint.sprites.get_machine_sprites
+            )
+
+            # Validate recipes
+            validate_sprites(
+                "recipe",
+                list(game_blueprint.recipes.keys()),
+                game_blueprint.sprites.get_recipe_sprites
+            )
