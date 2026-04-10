@@ -6,6 +6,10 @@ The purpose of this application is to be a 'Hay Day' -like idle game.
 Core gameplay revolves around planting and harvesting crops.
 Excess crops can be used to craft products to complete randomized orders and gain coins.
 
+## Done (tehty)
+
+- Hotbar UI demo, with a sample inventory defined in index.py which can be cycled through left-click (cycling happens only between 2 random items due to impl).
+
 ## Game
 
 ### Gameplay
@@ -28,6 +32,9 @@ A rough wireframe view of the game can be seen below
 (the final game will use stylized pixel art):
 
 <img width="842" height="608" alt="image" src="https://github.com/user-attachments/assets/37409ae8-3272-4410-a245-c20b46e4e7da" />
+
+**Edit 10.4:** More developed UI mockups:
+![UI mockup](./images/ui_mockup.png)
 
 **Hotbar**: Any item in the hotbar can be clicked and dragged onto other elements. 
 For example dragging the scythe onto the farm will harvest the crops. 
