@@ -39,6 +39,16 @@ class GameBlueprint:
 
         return required_slots
 
+    def get_game_element(self, item_id) -> GameElementBlueprint | None:
+        if item_id in self.crops:
+            return self.crops.get(item_id)
+        if item_id in self.recipes:
+            return self.recipes.get(item_id)
+        if item_id in self.machines:
+            return self.machines.get(item_id)
+
+        return None
+
     @classmethod
     def load_from_file(cls, file_path: str, ignore_sprites: bool = False) -> Self | None:
         """Loads game JSON blueprint into a GameData class from a JSON file"""

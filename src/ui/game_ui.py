@@ -1,32 +1,41 @@
 import pygame
 
 from state.game_state import GameState
+from ui.assets import GameAssets
+from ui.elements import UIElement, HotbarUI, MachineUI
 
-
-class GameAssets:
-    def __init__(self):
-        self.font = pygame.font.Font("src/ui/assets/font.ttf", 20)
 
 class GameUI:
 
-    def __init__(self, game: GameState):
-        self.screen = None
-        self.assets = None
-        self.game = game
-        self.running = True
+    SCREEN_SIZE = (640, 640)
+    BG_COLOR = (255, 252, 224)
 
-    def start(self):
-
+    def __init__(self, state: GameState):
         # Initialize pygame
         pygame.init()
         pygame.font.init()
 
-        # Load assets
-        self.assets = GameAssets()
+        self.assets = None
+        self.screen = None
+        self.state = state
+        self.running = True
+        self.elements: list[UIElement] = []
 
-        self.screen = pygame.display.set_mode((640, 640))
+    def start(self):
+        # Create screen
+        flags = pygame.SCALED
+        self.screen = pygame.display.set_mode(
+            size=self.SCREEN_SIZE,
+            flags=flags
+        )
 
-        # Start game logic & render loop
+        self.assets = GameAssets(self.SCREEN_SIZE)
+        self.elements: list[UIElement] = [
+            HotbarUI(self.assets, self.state),
+            MachineUI(self.assets, self.state),
+        ]
+
+        # Start state logic & render loop
         self.__start_game_loop()
 
         # Clean up after quitting
@@ -36,23 +45,43 @@ class GameUI:
         clock = pygame.time.Clock()
 
         while self.running:
+            delta_time = clock.tick(30) / 1000
+
             # Handle events
             self.__handle_events()
 
-            # Render
-            self.__render()
+            # Update state
+            self.state.update(delta_time)
+
+            # Update UI elements
+            self.__update()
+
+            # Render screen
+            self.__draw()
 
             pygame.display.flip()
 
         pass
 
-    def __render(self):
-        self.screen.fill((255, 255, 255))
+    def __update(self):
+        for element in self.elements:
+            element.update()
 
-        text = self.assets.font.render(str(self.game.farm.coins), True, (0, 0, 0))
-        self.screen.blit(text, (300, 100))
+    def __draw(self):
+        self.screen.fill(self.BG_COLOR)
+
+        # Draw elements based on order
+        for element in sorted(self.elements, key=lambda e: e.order()):
+            element.draw(self.screen)
 
     def __handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
+                continue
+
+            self.__handle_event(event)
+
+    def __handle_event(self, event):
+        for element in self.elements:
+            element.handle_event(event)
