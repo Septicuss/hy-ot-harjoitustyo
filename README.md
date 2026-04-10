@@ -33,6 +33,11 @@ poetry run invoke start
 poetry run invoke test
 ```
 
+### Linter
+```
+poetry run invoke lint
+```
+
 ### Coverage report
 ```
 poetry run invoke coverage-report

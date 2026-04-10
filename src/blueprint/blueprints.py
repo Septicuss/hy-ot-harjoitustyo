@@ -1,15 +1,14 @@
 from dataclasses import dataclass
-from typing import TypedDict
 
 
 class GameElementBlueprint:
-    def __init__(self, id: str, name: str):
-        self.id = id
+    def __init__(self, element_id: str, name: str):
+        self.id = element_id
         self.name = name
 
 class ItemReference:
-    def __init__(self, id: str, amount: int):
-        self.id = id
+    def __init__(self, reference_id: str, amount: int):
+        self.id = reference_id
         self.amount = amount
 
     def __repr__(self):
@@ -18,7 +17,7 @@ class ItemReference:
     @classmethod
     def from_dict(cls, data):
         return cls(
-            id = data["id"],
+            reference_id= data["id"],
             amount = data.get("amount", 1)
         )
 
@@ -31,7 +30,10 @@ class ConstantsBlueprint:
     def from_dict(cls, data):
         return cls(
             default_coins = int(data["default_coins"]),
-            default_items = [ItemReference.from_dict(item_data) for item_data in data["default_items"]]
+            default_items = [
+                ItemReference.from_dict(item_data)
+                for item_data in data["default_items"]
+            ]
         )
 
 @dataclass
@@ -89,9 +91,9 @@ class SpritesBlueprint:
         )
 
 class CropBlueprint(GameElementBlueprint):
-    def __init__(self, id: str, name: str, time: float):
-        super().__init__(id, name)
-        self.id = id
+    def __init__(self, crop_id: str, name: str, time: float):
+        super().__init__(crop_id, name)
+        self.id = crop_id
         self.name = name
         self.growth_time = time
 
@@ -101,16 +103,16 @@ class CropBlueprint(GameElementBlueprint):
     @classmethod
     def from_dict(cls, data):
         return cls(
-            id = data["id"],
+            crop_id= data["id"],
             name = data["name"],
             time = data["time"]
         )
 
 
 class RecipeBlueprint(GameElementBlueprint):
-    def __init__(self, id: str, name: str, time: float, recipe: list[ItemReference]):
-        super().__init__(id, name)
-        self.id = id
+    def __init__(self, recipe_id: str, name: str, time: float, recipe: list[ItemReference]):
+        super().__init__(recipe_id, name)
+        self.id = recipe_id
         self.name = name
         self.time = time
         self.recipe = recipe
@@ -121,7 +123,7 @@ class RecipeBlueprint(GameElementBlueprint):
     @classmethod
     def from_dict(cls, data):
         return cls(
-            id = data["id"],
+            recipe_id= data["id"],
             name = data["name"],
             time = data["time"],
             recipe = [ItemReference.from_dict(recipe_data) for recipe_data in data["recipe"]]
@@ -129,9 +131,9 @@ class RecipeBlueprint(GameElementBlueprint):
 
 
 class MachineBlueprint(GameElementBlueprint):
-    def __init__(self, id: str, name: str, recipes: list[ItemReference]):
-        super().__init__(id, name)
-        self.id = id
+    def __init__(self, machine_id: str, name: str, recipes: list[ItemReference]):
+        super().__init__(machine_id, name)
+        self.id = machine_id
         self.name = name
         self.recipes = recipes
 
@@ -141,7 +143,7 @@ class MachineBlueprint(GameElementBlueprint):
     @classmethod
     def from_dict(cls, data):
         return cls(
-            id = data["id"],
+            machine_id= data["id"],
             name = data["name"],
             recipes = [ItemReference.from_dict({"id": recipe_id}) for recipe_id in data["recipes"]]
         )

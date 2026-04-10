@@ -6,19 +6,24 @@ class GameState:
         self.blueprint = blueprint
         self.player = Player(self)
         self.timer: float = 0
-        self.machines: list[Machine] = [Machine(self, machine_blueprint) for machine_blueprint in blueprint.machines.values()]
+        self.machines: list[Machine] = [
+            Machine(self, machine_blueprint)
+            for machine_blueprint in blueprint.machines.values()
+        ]
 
     def update(self, delta_time: float):
         self.timer += delta_time
 
         # Set selected item if not set
-        if self.player.get_selected_item() is None and len(self.player.inventory.get_all_item_ids()) > 0:
+        selected_item = self.player.get_selected_item()
+
+        if selected_item is None and len(self.player.inventory.get_all_item_ids()) > 0:
             self.player.cycle_selected_item()
 
 
 class Inventory:
     def __init__(self, slot_limit: int = -1):
-        self._items: dict[str, int] = dict()
+        self._items: dict[str, int] = {}
         self._slot_limit = slot_limit
 
     def is_full(self):

@@ -80,7 +80,7 @@ class TestGameBlueprint(unittest.TestCase):
         data = {}
         blueprint = GameBlueprint.load_from_json(json.dumps(data))
 
-        self.assertRaisesRegex(ValueError, "Tried to get the required slots of a non-existent machine 'test'", blueprint.get_required_machine_slots, "test")
+        self.assertRaisesRegex(ValueError, "Unknown machine 'test'", blueprint.get_required_machine_slots, "test")
 
     def test_require_machine_slots_returns_correct_value(self):
         # A machine that crafts a recipe with two distinct ingredients returns 2 slots required
