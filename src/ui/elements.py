@@ -68,7 +68,7 @@ class HotbarUI(UIElement):
         item_name = self.state.blueprint.get_game_element(selected_item_id).name
 
         # Update displayed selected hotbar item UI
-        self.sprite: LoadedItemSprites = self.assets.get_item_sprites(self.state.blueprint, selected_item_id)
+        self.sprite: LoadedItemSprites = self.assets.get_recipe_sprites(self.state.blueprint, selected_item_id)
         self.sprite_id = selected_item_id
         self.tooltip = self.font.render(item_name, True, self.hotbar_tooltip_text_color)
         self.amount_text = self.font.render(str(item_amount), True, self.hotbar_amount_text_color)

@@ -1,6 +1,7 @@
 import json
 import unittest
 
+from blueprint.blueprints import RecipeType
 from blueprint.game_blueprint import GameBlueprint
 
 default_blueprint_path = "src/blueprint/blueprint.json"
@@ -32,9 +33,9 @@ class TestGameBlueprint(unittest.TestCase):
         # A crop and a machine have the same id
         data = {
             "sprites": {"wheat": [0,0], "wheat_stage_1": [0,0], "wheat_stage_2": [0,0], "wheat_stage_3": [0,0], "wheat_busy": [0,0]},
-            "crops": [
-                {"id": "wheat", "name": "wheat", "time": 5},
-                {"id": "wheat", "name": "wheat", "time": 5}
+            "recipes": [
+                {"id": "wheat", "name": "wheat", "time": 5, "recipe": [{"id": "wheat"}]},
+                {"id": "wheat", "name": "wheat", "time": 5, "recipe": [{"id": "wheat"}]}
             ],
             "machines": [
                 {"id": "wheat", "name": "wheat", "recipes": []},
@@ -45,11 +46,11 @@ class TestGameBlueprint(unittest.TestCase):
     def test_missing_sprites_raises_error(self):
         # A crop with no sprites
         data = {
-            "crops": [
-                {"id": "wheat", "name": "wheat", "time": 5}
+            "recipes": [
+                {"id": "wheat", "name": "wheat", "type": RecipeType.CROP.value, "time": 5}
             ]
         }
-        self.assertRaisesRegex(ValueError, "crop 'wheat' did not have sprite", GameBlueprint.load_from_json, json.dumps(data))
+        self.assertRaisesRegex(ValueError, "recipe 'wheat' did not have sprite", GameBlueprint.load_from_json, json.dumps(data))
 
         # A crop with stage_1 sprite missing
         data = {
@@ -58,11 +59,11 @@ class TestGameBlueprint(unittest.TestCase):
                 "wheat_stage_2": [0,0],
                 "wheat_stage_3": [0,0],
             },
-            "crops": [
-                {"id": "wheat", "name": "wheat", "time": 5}
+            "recipes": [
+                {"id": "wheat", "name": "wheat", "time": 5, "type": RecipeType.CROP.value}
             ]
         }
-        self.assertRaisesRegex(ValueError, "crop 'wheat' did not have sprite 'wheat_stage_1'", GameBlueprint.load_from_json, json.dumps(data))
+        self.assertRaisesRegex(ValueError, "recipe 'wheat' did not have sprite 'wheat_stage_1'", GameBlueprint.load_from_json, json.dumps(data))
 
         # A machine without _busy sprite
         data = {
@@ -85,13 +86,13 @@ class TestGameBlueprint(unittest.TestCase):
     def test_require_machine_slots_returns_correct_value(self):
         # A machine that crafts a recipe with two distinct ingredients returns 2 slots required
         data = {
-            # Two ingredients
             "crops": [
-                {"id": "a", "name": "a", "time": 5},
-                {"id": "b", "name": "b", "time": 5}
             ],
-            # Recipe with above two ingredients
             "recipes": [
+                # Two ingredients 'a' and 'b'
+                {"id": "a", "name": "a", "time": 5, "recipe": [{"id": "a"}]},
+                {"id": "b", "name": "b", "time": 5, "recipe": [{"id": "b"}]},
+                # Recipe with above two ingredients 'c'
                 {"id": "c", "name": "c", "time": 5, "recipe": [
                     {"id": "a"},
                     {"id": "b"}
@@ -102,7 +103,23 @@ class TestGameBlueprint(unittest.TestCase):
                 {"id": "d", "name": "d", "recipes": ["c"]},
             ]
         }
-        blueprint = GameBlueprint.load_from_json(json.dumps(data), True)
+        blueprint = GameBlueprint.load_from_json(json.dumps(data), ignore_sprites=True)
         required_slots = blueprint.get_required_machine_slots("d")
 
         self.assertIs(required_slots, 2)
+
+    def test_getting_element_blueprints_by_id_works(self):
+        # One recipe with id 'a' and one machine with id 'b'
+        data = {
+            "recipes": [
+                {"id": "a", "name": "a", "time": 5},
+            ],
+            "machines": [
+                {"id": "b", "name": "b", "recipes": ["a"]},
+            ]
+        }
+        blueprint = GameBlueprint.load_from_json(json.dumps(data), ignore_sprites=True)
+
+        self.assertIsNotNone(blueprint.get_game_element("a"), "blueprint did not return a recipe blueprint with id 'a'")
+        self.assertIsNotNone(blueprint.get_game_element("b"), "blueprint did not return a machine blueprint with id 'b'")
+        self.assertIsNone(blueprint.get_game_element("c"), "blueprint returned a blueprint for a missing id 'c'")

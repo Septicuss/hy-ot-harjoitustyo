@@ -34,26 +34,32 @@
     "juice_press": [4, 2],
     "juice_press_busy": [5, 2],
     "bakery": [4, 3],
-    "bakery_busy": [5, 3]
+    "bakery_busy": [5, 3],
+    "farmland": [0, 0],
+    "farmland_busy": [0, 0]
   },
-  "crops": [
+  "recipes": [
     {
       "id": "wheat",
       "name": "Wheat",
-      "time": 5
+      "type": "crop",
+      "time": 5,
+      "recipe": [{"id": "wheat"}]
     },
     {
       "id": "soy",
       "name": "Soy",
-      "time": 10
+      "type": "crop",
+      "time": 10,
+      "recipe": [{"id": "soy"}]
     },
     {
       "id": "berry",
       "name": "Berry",
-      "time": 15
-    }
-  ],
-  "recipes": [
+      "type": "crop",
+      "time": 15,
+      "recipe": [{"id": "berry"}]
+    },
     {
       "id": "berry_juice",
       "name": "Berry Juice",

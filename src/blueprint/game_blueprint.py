@@ -4,7 +4,6 @@ from pathlib import Path
 from typing import Self
 
 from blueprint.blueprints import (
-    CropBlueprint,
     RecipeBlueprint,
     MachineBlueprint,
     GameElementBlueprint,
@@ -33,7 +32,6 @@ def _validate_references(item_type: str, items, ids: list[str], get_refs_func):
 class GameBlueprintData:
     constants: ConstantsBlueprint
     sprites: SpritesBlueprint
-    crops: list[CropBlueprint]
     recipes: list[RecipeBlueprint]
     machines: list[MachineBlueprint]
 
@@ -45,10 +43,6 @@ class GameBlueprint:
     def __init__(self, data: GameBlueprintData):
         self.constants = data.constants
         self.sprites = data.sprites
-        self.crops: dict[str, CropBlueprint] = {
-            crop.id: crop
-            for crop in data.crops
-        }
         self.recipes: dict[str, RecipeBlueprint] = {
             recipe.id: recipe
             for recipe in data.recipes
@@ -73,8 +67,6 @@ class GameBlueprint:
         return required_slots
 
     def get_game_element(self, item_id) -> GameElementBlueprint | None:
-        if item_id in self.crops:
-            return self.crops.get(item_id)
         if item_id in self.recipes:
             return self.recipes.get(item_id)
         if item_id in self.machines:
@@ -102,17 +94,10 @@ class GameBlueprint:
 
         data = json.loads(json_data)
 
-        loaded_crops = []
         loaded_recipes = []
         loaded_machines = []
         constants = ConstantsBlueprint()
         sprites = SpritesBlueprint({})
-
-        if "crops" in data:
-            loaded_crops = [
-                CropBlueprint.from_dict(crop_data)
-                for crop_data in data["crops"]
-            ]
 
         if "recipes" in data:
             loaded_recipes = [
@@ -135,7 +120,6 @@ class GameBlueprint:
         game_blueprint_data = GameBlueprintData(
             constants,
             sprites,
-            loaded_crops,
             loaded_recipes,
             loaded_machines
         )
@@ -162,7 +146,6 @@ class GameBlueprint:
                 raise ValueError("duplicate ids")
 
         all_elements: list[GameElementBlueprint] = [
-            *game_blueprint.crops.values(),
             *game_blueprint.recipes.values(),
             *game_blueprint.machines.values()
         ]
@@ -193,13 +176,6 @@ class GameBlueprint:
         if ignore_sprites:
             return
 
-        # Validate crops
-        _validate_sprites(
-            "crop",
-            list(game_blueprint.crops.keys()),
-            game_blueprint.sprites.get_crop_sprites
-        )
-
         # Validate machines
         _validate_sprites(
             "machine",
@@ -207,9 +183,15 @@ class GameBlueprint:
             game_blueprint.sprites.get_machine_sprites
         )
 
+
         # Validate recipes
         _validate_sprites(
             "recipe",
             list(game_blueprint.recipes.keys()),
-            game_blueprint.sprites.get_recipe_sprites
+            lambda recipe_id: ( # get recipe sprite accounting for the recipe type
+                game_blueprint.sprites.get_recipe_sprites(
+                    recipe_id,
+                    game_blueprint.recipes.get(recipe_id).type
+                )
+            )
         )

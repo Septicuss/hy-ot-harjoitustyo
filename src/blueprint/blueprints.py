@@ -1,5 +1,13 @@
 from dataclasses import dataclass
+from enum import Enum
 
+
+class RecipeType(Enum):
+    """Represents the type of the recipe item"""
+    ITEM = "item"
+    """Default. Regular item with a single sprite"""
+    CROP = "crop"
+    """Crop item with additional crop sprites"""
 
 class GameElementBlueprint:
     def __init__(self, element_id: str, name: str):
@@ -70,7 +78,17 @@ class SpritesBlueprint:
             self._mappings.get(f"{machine_id}_busy"),
         )
 
-    def get_recipe_sprites(self, recipe_id: str) -> RecipeSprites:
+    def get_recipe_sprites(self,
+                           recipe_id: str,
+                           recipe_type: RecipeType) -> RecipeSprites | CropSprites:
+        if recipe_type == RecipeType.CROP:
+            return CropSprites(
+                self._mappings.get(recipe_id),
+                self._mappings.get(f"{recipe_id}_stage_1"),
+                self._mappings.get(f"{recipe_id}_stage_2"),
+                self._mappings.get(f"{recipe_id}_stage_3")
+            )
+
         return RecipeSprites(
             self._mappings.get(recipe_id),
         )
@@ -90,31 +108,19 @@ class SpritesBlueprint:
             mappings = mappings
         )
 
-class CropBlueprint(GameElementBlueprint):
-    def __init__(self, crop_id: str, name: str, time: float):
-        super().__init__(crop_id, name)
-        self.id = crop_id
-        self.name = name
-        self.growth_time = time
-
-    def __repr__(self):
-        return f"CropBlueprint({self.id}, {self.name}, {self.growth_time})"
-
-    @classmethod
-    def from_dict(cls, data):
-        return cls(
-            crop_id= data["id"],
-            name = data["name"],
-            time = data["time"]
-        )
-
-
 class RecipeBlueprint(GameElementBlueprint):
-    def __init__(self, recipe_id: str, name: str, time: float, recipe: list[ItemReference]):
+    def __init__(self,
+                 recipe_id: str,
+                 name: str,
+                 time: float,
+                 *,
+                 recipe_type: RecipeType,
+                 recipe: list[ItemReference]):
         super().__init__(recipe_id, name)
         self.id = recipe_id
         self.name = name
         self.time = time
+        self.type = recipe_type
         self.recipe = recipe
 
     def __repr__(self):
@@ -122,11 +128,17 @@ class RecipeBlueprint(GameElementBlueprint):
 
     @classmethod
     def from_dict(cls, data):
+        recipe_id = data["id"]
+        default_recipe = [ItemReference(data["id"], 1)] # crafts one of self
+        recipe = ([ItemReference.from_dict(recipe_entry) for recipe_entry in data["recipe"]]
+                  if "recipe" in data else default_recipe) # use default recipe above if missing
+
         return cls(
-            recipe_id= data["id"],
+            recipe_id= recipe_id,
             name = data["name"],
             time = data["time"],
-            recipe = [ItemReference.from_dict(recipe_data) for recipe_data in data["recipe"]]
+            recipe_type=RecipeType(data.get("type", "item")),
+            recipe = recipe
         )
 
 
