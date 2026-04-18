@@ -132,6 +132,16 @@
         "berry_bread",
         "soy_bun"
       ]
+    },
+    {
+      "id": "farmland",
+      "name": "Farmland",
+      "render": "crop",
+      "recipes": [
+        "wheat",
+        "soy",
+        "berry"
+      ]
     }
   ]
 }

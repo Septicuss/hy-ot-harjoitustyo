@@ -9,6 +9,13 @@ class RecipeType(Enum):
     CROP = "crop"
     """Crop item with additional crop sprites"""
 
+class MachineRenderType(Enum):
+    """Represents how a machine is rendered"""
+    DEFAULT = "default"
+    """Default. Machine is rendered having a regular and a busy state"""
+    CROP = "crop"
+    """Machine is rendered """
+
 class GameElementBlueprint:
     def __init__(self, element_id: str, name: str):
         self.id = element_id
@@ -143,11 +150,12 @@ class RecipeBlueprint(GameElementBlueprint):
 
 
 class MachineBlueprint(GameElementBlueprint):
-    def __init__(self, machine_id: str, name: str, recipes: list[ItemReference]):
+    def __init__(self, machine_id: str, name: str, render: MachineRenderType, recipes: list[ItemReference]):
         super().__init__(machine_id, name)
         self.id = machine_id
         self.name = name
-        self.recipes = recipes
+        self.render: MachineRenderType = render
+        self.recipes: list[ItemReference] = recipes
 
     def __repr__(self):
         return f"MachineBlueprint({self.id}, {self.name})"
@@ -157,5 +165,6 @@ class MachineBlueprint(GameElementBlueprint):
         return cls(
             machine_id= data["id"],
             name = data["name"],
+            render=MachineRenderType(data.get("render", "default")),
             recipes = [ItemReference.from_dict({"id": recipe_id}) for recipe_id in data["recipes"]]
         )
