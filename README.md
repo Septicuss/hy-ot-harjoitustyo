@@ -8,6 +8,7 @@ Subject: *A simple Python 'Hay Day'-like farming game*
 - [Time Tracking](https://github.com/Septicuss/hy-ot-harjoitustyo/blob/main/docs/timetracking.md)
 - [Changelog](https://github.com/Septicuss/hy-ot-harjoitustyo/blob/main/docs/changelog.md)
 - [Architecture](https://github.com/Septicuss/hy-ot-harjoitustyo/blob/main/docs/architecture.md)
+- [Latest Release](https://github.com/Septicuss/hy-ot-harjoitustyo/releases/latest)
 
 ## Installation
 
