@@ -1,5 +1,13 @@
 from blueprint.blueprints import ItemReference
 
+def item_ids_to_references(item_ids: list[str]) -> list[ItemReference]:
+    """Returns a list of ids turned into a list of item references."""
+    return [ItemReference(item_id) for item_id in item_ids]
+
+def item_count_sum(items: list[ItemReference]) -> int:
+    """Returns the sum of all item amounts."""
+    return sum(item.amount for item in items)
+
 def item_counts_match(first: list[ItemReference], second: list[ItemReference]) -> bool:
     """True if the amount of items in both arrays match by item id."""
 

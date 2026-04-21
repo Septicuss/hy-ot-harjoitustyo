@@ -2,13 +2,15 @@ import json
 from dataclasses import fields, dataclass
 from pathlib import Path
 from typing import Self
+from state import utils
 
 from blueprint.blueprints import (
     RecipeBlueprint,
     MachineBlueprint,
     GameElementBlueprint,
     ConstantsBlueprint,
-    SpritesBlueprint
+    SpritesBlueprint,
+    ItemReference
 )
 
 
@@ -73,6 +75,43 @@ class GameBlueprint:
             return self.machines.get(item_id)
 
         return None
+
+    def get_matching_recipes(self,
+                             items: list[ItemReference],
+                             machine_id: str = None,
+                             strict: bool = False) -> list[RecipeBlueprint]:
+        """Returns a list of recipes matching the given list of items
+
+        Args:
+            items (list[ItemReference]): the ingredients to check
+            machine_id (str): optional id to scope recipes to a machine
+            strict (bool): optional, false by default, if true will
+                only return recipes for which all requirements are satisfied
+
+        """
+
+        recipe_filter: list[str] | None = None
+
+        if machine_id is not None:
+            machine = self.machines.get(machine_id)
+            recipe_filter = [item_reference.id for item_reference in machine.recipes]
+
+        matched: list[RecipeBlueprint] = []
+        blueprints: list[RecipeBlueprint] = [
+            recipe
+            for recipe in list(self.recipes.values())
+            if recipe_filter is None or recipe.id in recipe_filter
+        ]
+
+        for blueprint in blueprints:
+            if strict:
+                if utils.item_counts_match(blueprint.recipe, items):
+                    matched.append(blueprint)
+            else:
+                if utils.item_counts_match(items, blueprint.recipe):
+                    matched.append(blueprint)
+
+        return matched
 
     @classmethod
     def load_from_file(cls, file_path: str, ignore_sprites: bool = False) -> Self | None:

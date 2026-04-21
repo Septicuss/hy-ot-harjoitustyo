@@ -22,12 +22,15 @@ class GameElementBlueprint:
         self.name = name
 
 class ItemReference:
-    def __init__(self, reference_id: str, amount: int):
+    def __init__(self, reference_id: str, amount: int = 1):
         self.id = reference_id
         self.amount = amount
 
     def __repr__(self):
         return f"ItemReference({self.id}, {self.amount})"
+
+    def __eq__(self, other):
+        return self.id == other.id and self.amount == other.amount
 
     @classmethod
     def from_dict(cls, data):
@@ -150,7 +153,11 @@ class RecipeBlueprint(GameElementBlueprint):
 
 
 class MachineBlueprint(GameElementBlueprint):
-    def __init__(self, machine_id: str, name: str, render: MachineRenderType, recipes: list[ItemReference]):
+    def __init__(self,
+                 machine_id: str,
+                 name: str,
+                 render: MachineRenderType,
+                 recipes: list[ItemReference]):
         super().__init__(machine_id, name)
         self.id = machine_id
         self.name = name

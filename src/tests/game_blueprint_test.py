@@ -1,10 +1,10 @@
 import json
 import unittest
 
-from blueprint.blueprints import RecipeType
+from blueprint.blueprints import RecipeType, ItemReference, RecipeBlueprint
 from blueprint.game_blueprint import GameBlueprint
+from tests.constants import default_blueprint_path
 
-default_blueprint_path = "src/blueprint/blueprint.json"
 
 class TestGameBlueprint(unittest.TestCase):
 
@@ -123,3 +123,49 @@ class TestGameBlueprint(unittest.TestCase):
         self.assertIsNotNone(blueprint.get_game_element("a"), "blueprint did not return a recipe blueprint with id 'a'")
         self.assertIsNotNone(blueprint.get_game_element("b"), "blueprint did not return a machine blueprint with id 'b'")
         self.assertIsNone(blueprint.get_game_element("c"), "blueprint returned a blueprint for a missing id 'c'")
+
+
+class TestDefaultGameBlueprint(unittest.TestCase):
+    # TODO: make this test not rely on the default game blueprint
+
+    def setUp(self):
+        self.blueprint = GameBlueprint.load_from_file(default_blueprint_path)
+
+    def test_matching_recipes_works(self):
+        # the input items
+        input_items = [
+            ItemReference("soy"),
+            ItemReference("wheat")
+        ]
+
+        def to_id_list(blueprints: list[RecipeBlueprint]):
+            return [blueprint.id for blueprint in blueprints]
+
+        # global recipe check for input items
+        self.assertCountEqual(
+            to_id_list(self.blueprint.get_matching_recipes(input_items)),
+            ["soy_bun"]
+        )
+
+        # recipe check scoped to "bakery" machine id
+        self.assertCountEqual(
+            to_id_list(self.blueprint.get_matching_recipes(input_items, "bakery")),
+            ["soy_bun"]
+        )
+
+        # ingredients for soy_bun do fit any recipes on "juice_press" machine
+        self.assertCountEqual(
+            to_id_list(self.blueprint.get_matching_recipes(input_items, "juice_press")),
+            []
+        )
+
+        # wheat is a common ingredient in itself, soy_bun and berry_bread
+        input_items = [ItemReference("wheat")]
+
+        self.assertCountEqual(
+            to_id_list(self.blueprint.get_matching_recipes(input_items)),
+            ["wheat", "soy_bun", "berry_bread"]
+        )
+
+
+    pass
