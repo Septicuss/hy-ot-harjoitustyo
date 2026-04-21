@@ -17,3 +17,13 @@
 
 Result of this week is a simple demo, which allows the user to click to switch selected item in the hotbar.
 In the next weeks interaction with the hotbar & items will be more defined.
+
+## Week 5
+
+- `refactor(blueprint):` Changed the blueprint schema so that crops are also recipes, instead of separate objects
+- `feat(state):` Implemented the game state machine flow, so that items can be added and crafted
+- `feat(ui):` Implemented dragging and dropping items onto machines
+- `test(state):` Implemented more tests for the state
+
+Result of this week was to make the state be able to handle future ui interactions,
+like adding items to machines and preparing items. 

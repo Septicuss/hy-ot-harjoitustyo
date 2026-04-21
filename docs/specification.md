@@ -8,7 +8,8 @@ Excess crops can be used to craft products to complete randomized orders and gai
 
 ## Done (tehty)
 
-- Hotbar UI demo, with a sample inventory defined in index.py which can be cycled through left-click (cycling happens only between 2 random items due to impl).
+- State backend for managing machines
+- WIP UI for dragging hotbar items onto machines
 
 ## Game
 
