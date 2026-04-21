@@ -19,6 +19,8 @@ class GameUI:
         self.screen = None
         self.state = state
         self.running = True
+
+        self.grid = None
         self.elements: list[UIElement] = []
 
     def start(self):
@@ -30,9 +32,16 @@ class GameUI:
         )
 
         self.assets = GameAssets(self.SCREEN_SIZE)
+
+        # Load grid of machines
+        self.grid: dict[int, UIElement] = {
+            machine.slot: MachineUI(self.assets, self.state, machine, machine.slot) for machine in self.state.machines
+        }
+
+        # Load ui elements
         self.elements: list[UIElement] = [
             HotbarUI(self.assets, self.state),
-            MachineUI(self.assets, self.state),
+            *self.grid.values()
         ]
 
         # Start state logic & render loop
@@ -40,6 +49,16 @@ class GameUI:
 
         # Clean up after quitting
         pygame.quit()
+
+    def set_grid_item(self, index: int, item: UIElement):
+        existing = self.grid.get(index)
+
+        if existing:
+            for element in self.elements:
+                if element.id == existing.id:
+                    self.elements.remove(element)
+
+        self.elements.append(item)
 
     def __start_game_loop(self):
         clock = pygame.time.Clock()
@@ -54,7 +73,7 @@ class GameUI:
             self.state.update(delta_time)
 
             # Update UI elements
-            self.__update()
+            self.__update(delta_time)
 
             # Render screen
             self.__draw()
@@ -63,9 +82,9 @@ class GameUI:
 
         pass
 
-    def __update(self):
+    def __update(self, delta_time: float):
         for element in self.elements:
-            element.update()
+            element.update(delta_time)
 
     def __draw(self):
         self.screen.fill(self.BG_COLOR)

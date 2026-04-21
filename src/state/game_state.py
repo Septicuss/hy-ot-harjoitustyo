@@ -7,10 +7,15 @@ class GameState:
         self.blueprint = blueprint
         self.player = Player(self)
         self.timer: float = 0
-        self.machines: list[Machine] = [
-            Machine(self, machine_blueprint)
-            for machine_blueprint in blueprint.machines.values()
-        ]
+
+        # TODO: Switch counter for either default machines & slots or loaded from savefile
+        counter = 0
+        self.machines: list[Machine] = []
+        for machine_blueprint in blueprint.machines.values():
+            machine = Machine(self, machine_blueprint, counter)
+            self.machines.append(machine)
+            counter += 1
+
 
     def update(self, delta_time: float):
         self.timer += delta_time
@@ -91,9 +96,10 @@ class Inventory:
 
 
 class Machine:
-    def __init__(self, state: GameState, blueprint: MachineBlueprint):
+    def __init__(self, state: GameState, blueprint: MachineBlueprint, slot: int):
         self.state = state
         self.blueprint = blueprint
+        self.slot = slot
 
         self.slots = state.blueprint.get_required_machine_slots(blueprint.id)
         self.inventory: Inventory = Inventory(self.slots)

@@ -73,5 +73,5 @@ class GameAssets:
 
         return pygame.transform.scale(
             image,
-            (8 * self.scale, 8 * self.scale)
+            (8 * scale, 8 * scale)
         )
