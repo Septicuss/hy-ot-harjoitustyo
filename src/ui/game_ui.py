@@ -1,4 +1,5 @@
 import pygame
+from pygame.event import Event
 
 from state.game_state import GameState
 from ui.assets import GameAssets
@@ -41,7 +42,7 @@ class GameUI:
         # Load ui elements
         self.elements: list[UIElement] = [
             HotbarUI(self.assets, self.state),
-            *self.grid.values()
+            *self.grid.values(),
         ]
 
         # Start state logic & render loop
@@ -101,6 +102,6 @@ class GameUI:
 
             self.__handle_event(event)
 
-    def __handle_event(self, event):
+    def __handle_event(self, event: Event):
         for element in self.elements:
             element.handle_event(event)

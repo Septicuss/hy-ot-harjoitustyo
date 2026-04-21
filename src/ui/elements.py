@@ -1,7 +1,8 @@
 import uuid
 
 import pygame
-from pygame import Surface, Color
+from pygame import Surface, Color, Rect
+from pygame.event import Event
 
 from blueprint.blueprints import MachineRenderType
 from state.game_state import GameState, Machine
@@ -37,7 +38,7 @@ class UIElement:
         """Returns the draw order of this element. Lower ordered element renders first."""
         return 0
 
-    def handle_event(self, event):
+    def handle_event(self, event: Event):
         pass
 
     def update(self, delta_time: float):
@@ -60,6 +61,7 @@ class NodeUIElement(UIElement):
                  border_color: Color | tuple[int, int, int],
                  center: tuple[float, float]):
         super().__init__()
+        self.hitbox: Rect | None = None
         self.bg_color = bg_color
         self.border_color = border_color
         self.center = center
@@ -83,7 +85,7 @@ class NodeUIElement(UIElement):
         )
 
         # background
-        pygame.draw.rect(
+        self.hitbox = pygame.draw.rect(
             surface,
             self.bg_color,
             self.node_bg_rect,
@@ -113,6 +115,9 @@ class HotbarUI(NodeUIElement):
         # Temporary
         self.text = self.font.render("Click anywhere to change selected item", True, (0, 0, 0))
 
+        # Whether the current item is being dragged
+        self.dragging = False
+
         # Selected item sprites
         self.sprite_id = None
         self.sprite: LoadedItemSprites | None = None
@@ -120,9 +125,19 @@ class HotbarUI(NodeUIElement):
         self.amount_text = None
         self.amount_rect = None
 
+    def order(self) -> int:
+        return 2
+
     def handle_event(self, event):
+        mouse_pos = pygame.mouse.get_pos()
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.hitbox.collidepoint(mouse_pos):
+                self.dragging = True
+
         if event.type == pygame.MOUSEBUTTONUP:
-            self.state.player.cycle_selected_item()
+            self.dragging = False
+
 
     def update(self, delta_time: float):
         selected_item_id = self.state.player.get_selected_item()
@@ -146,6 +161,16 @@ class HotbarUI(NodeUIElement):
         # Temporary help text
         surface.blit(self.text, (0, 0))
 
+        if self.dragging:
+            mouse_pos = pygame.mouse.get_pos()
+            item_width = self.sprite.main.get_width()
+            item_height = self.sprite.main.get_height()
+
+            surface.blit( # Item sprite
+                self.sprite.main,
+                (mouse_pos[0] - item_width / 2, mouse_pos[1] - item_height / 2)
+            )
+
         # Draw selected item if present
         if self.sprite_id is not None:
             surface.blit( # Item sprite
@@ -168,7 +193,6 @@ class HotbarUI(NodeUIElement):
                 (self.amount_rect.x + (self.amount_text.get_width() / 2), self.amount_rect.y + (self.amount_text.get_height() / 2))
             )
 
-        pass
 
 
 class MachineUI(NodeUIElement):
