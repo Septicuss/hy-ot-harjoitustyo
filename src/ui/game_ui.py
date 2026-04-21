@@ -35,14 +35,14 @@ class GameUI:
         self.assets = GameAssets(self.SCREEN_SIZE)
 
         # Load grid of machines
-        self.grid: dict[int, UIElement] = {
+        self.assets.grid = {
             machine.slot: MachineUI(self.assets, self.state, machine, machine.slot) for machine in self.state.machines
         }
 
         # Load ui elements
         self.elements: list[UIElement] = [
             HotbarUI(self.assets, self.state),
-            *self.grid.values(),
+            *self.assets.grid.values(),
         ]
 
         # Start state logic & render loop

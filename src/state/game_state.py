@@ -1,4 +1,4 @@
-from blueprint.blueprints import MachineBlueprint, ItemReference
+from blueprint.blueprints import MachineBlueprint, ItemReference, RecipeBlueprint
 from blueprint.game_blueprint import GameBlueprint
 from state import utils
 
@@ -143,10 +143,12 @@ class Machine:
 
         if len(recipes) == 1:
             first = recipes[0]
-            self.result = first.id
-            self.busy = True
-            self.time_remaining = first.time
+            self.set_busy(first)
 
+    def set_busy(self, recipe: RecipeBlueprint):
+        self.result = recipe.id
+        self.busy = True
+        self.time_remaining = recipe.time
 
     def update(self, delta_time: float):
         if not self.busy:

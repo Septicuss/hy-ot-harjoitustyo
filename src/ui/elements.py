@@ -113,7 +113,8 @@ class HotbarUI(NodeUIElement):
         self.assets = assets
 
         # Temporary
-        self.text = self.font.render("Click anywhere to change selected item", True, (0, 0, 0))
+        self.text1 = self.assets.hint_font.render("Demo notes:", True, (0, 0, 0))
+        self.text2 = self.assets.hint_font.render("Drag&Drop item on machines to make them busy for 10s", True, (0, 0, 0))
 
         # Whether the current item is being dragged
         self.dragging = False
@@ -137,6 +138,9 @@ class HotbarUI(NodeUIElement):
 
         if event.type == pygame.MOUSEBUTTONUP:
             self.dragging = False
+            for node in list(self.assets.grid.values()):
+                if node.hitbox.collidepoint(mouse_pos):
+                    node.machine.set_busy(self.state.blueprint.recipes.get('soy_bun'))
 
 
     def update(self, delta_time: float):
@@ -159,7 +163,8 @@ class HotbarUI(NodeUIElement):
         super().draw(surface)
         
         # Temporary help text
-        surface.blit(self.text, (0, 0))
+        surface.blit(self.text1, (0, 0))
+        surface.blit(self.text2, (0, 20))
 
         if self.dragging:
             mouse_pos = pygame.mouse.get_pos()
