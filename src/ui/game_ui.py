@@ -35,14 +35,14 @@ class GameUI:
         self.assets = GameAssets(self.SCREEN_SIZE)
 
         # Load grid of machines
-        self.assets.grid = {
-            machine.slot: MachineUI(self.assets, self.state, machine, machine.slot) for machine in self.state.machines
+        self.assets.tiles = {
+            tile: MachineUI(self.assets, self.state, machine, tile) for tile, machine in self.state.tiles.items()
         }
 
         # Load ui elements
         self.elements: list[UIElement] = [
             HotbarUI(self.assets, self.state),
-            *self.assets.grid.values(),
+            *self.assets.tiles.values(),
         ]
 
         # Start state logic & render loop
@@ -65,7 +65,7 @@ class GameUI:
         clock = pygame.time.Clock()
 
         while self.running:
-            delta_time = clock.tick(30) / 1000
+            delta_time = clock.tick(60) / 1000
 
             # Handle events
             self.__handle_events()

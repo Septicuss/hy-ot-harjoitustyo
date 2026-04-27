@@ -6,7 +6,18 @@
         "id": "wheat",
         "amount": 2
       }
-    ]
+    ],
+    "default_tiles": {
+      "0": "farmland",
+      "1": "farmland",
+      "2": "bakery",
+      "3": "juice_press",
+      "4": "juice_press",
+      "5": "juice_press",
+      "6": "juice_press",
+      "7": "juice_press",
+      "8": "juice_press"
+    }
   },
   "sprites": {
     "coin": [3, 3],

@@ -7,4 +7,4 @@ class GameSaves:
 class GameSave:
 
     def __init__(self):
-        pass
+        self.is_first_run = True

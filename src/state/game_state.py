@@ -1,21 +1,30 @@
 from blueprint.blueprints import MachineBlueprint, ItemReference, RecipeBlueprint
 from blueprint.game_blueprint import GameBlueprint
+from save.save import GameSave
 from state import utils
 
 class GameState:
-    def __init__(self, blueprint: GameBlueprint):
+    """Class for holding and controlling the entire game state"""
+
+    def __init__(self, blueprint: GameBlueprint, save: GameSave):
         self.blueprint = blueprint
         self.player = Player(self)
         self.timer: float = 0
+        self.tiles: dict[int, Machine] = {}
 
-        # TODO: Switch counter for either default machines & slots or loaded from savefile
-        counter = 0
-        self.machines: list[Machine] = []
-        for machine_blueprint in blueprint.machines.values():
-            machine = Machine(self, machine_blueprint, counter)
-            self.machines.append(machine)
-            counter += 1
+        # Initialize default tiles if first game run
+        if save.is_first_run:
+            for tile, machine_id in self.blueprint.constants.default_tiles.items():
+                machine_blueprint = self.blueprint.machines.get(machine_id)
+                machine = Machine(self, machine_blueprint, tile)
 
+                self.set_tile(tile, machine)
+
+    def get_tile(self, tile: int) -> "Machine | None":
+        self.tiles.get(tile)
+
+    def set_tile(self, tile: int, machine: "Machine"):
+        self.tiles[tile] = machine
 
     def update(self, delta_time: float):
         self.timer += delta_time
@@ -27,9 +36,8 @@ class GameState:
             self.player.cycle_selected_item()
 
         # Update machines
-        for machine in self.machines:
+        for machine in self.tiles.values():
             machine.update(delta_time=delta_time)
-
 
 class Inventory:
     """Represents an inventory which can hold items up to its item limit."""
@@ -96,10 +104,10 @@ class Inventory:
 
 
 class Machine:
-    def __init__(self, state: GameState, blueprint: MachineBlueprint, slot: int):
+    def __init__(self, state: GameState, blueprint: MachineBlueprint, tile: int):
         self.state = state
         self.blueprint = blueprint
-        self.slot = slot
+        self.tile = tile
 
         self.slots = state.blueprint.get_required_machine_slots(blueprint.id)
         self.inventory: Inventory = Inventory(self.slots)

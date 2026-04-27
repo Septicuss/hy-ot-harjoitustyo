@@ -40,9 +40,14 @@ class ItemReference:
         )
 
 class ConstantsBlueprint:
-    def __init__(self, default_coins: int = 0, default_items: list[ItemReference]=None):
+    def __init__(self,
+                 default_coins: int = 0,
+                 default_items: list[ItemReference]=None,
+                 default_tiles: dict[int, str]=None):
+
         self.default_coins = default_coins
         self.default_items: list[ItemReference] = [] if default_items is None else default_items
+        self.default_tiles: dict[int, str] = {} if default_tiles is None else default_tiles
 
     @classmethod
     def from_dict(cls, data):
@@ -51,7 +56,11 @@ class ConstantsBlueprint:
             default_items = [
                 ItemReference.from_dict(item_data)
                 for item_data in data["default_items"]
-            ]
+            ],
+            default_tiles = {
+                int(key): value
+                for key, value in data.get("default_tiles", {}).items()
+            }
         )
 
 @dataclass
