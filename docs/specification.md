@@ -2,14 +2,34 @@
 
 ## Purpose
 
+
 The purpose of this application is to be a 'Hay Day' -like idle game.
-Core gameplay revolves around planting and harvesting crops.
+Core gameplay revolves around planting & harvesting crops and processing the crops to craft food.
 Excess crops can be used to craft products to complete randomized orders and gain coins.
 
-## Done (tehty)
+## 🛠️ Todo
 
-- State backend for managing machines
-- WIP UI for dragging hotbar items onto machines
+**Current state**: Can drag wheat seed from hotbar onto any 
+of the two default machines, which will make the machine busy for 10s.
+
+* `[Blueprint]` Loading game blueprints from `blueprints.json` ✅
+* `[State]` Machines and crafting 🕛
+* `[State]` Player & machine inventory ✅
+* `[State]` Orders 🕛
+* `[State]` Automatic game saves using `save` module 🕛
+* `[State]` Tile system for machines & farmland 🕛
+* `[State]` Buying & selling tiles 🕛
+* `[UI]` Loading UI assets from blueprints & bitmaps ✅
+* `[UI]` Hotbar ✅
+* `[UI]` Hotbar item selection wheel 🕛
+* `[UI]` Dragging items from hotbar onto machines ✅
+* `[UI]` Dragging items from hotbar onto orders 🕛
+* `[UI]` Machine UI (preparing items & showing recipes) 🕛
+* `[UI]` Order UI (rendering orders) 🕛
+* `[UI]` Rendering the tile system (machines) 🕛
+* `[UI]` Buying and selling tiles (machines) 🕛
+* `[Save]` Saving and loading saves (`save` module) 🕛
+
 
 ## Game
 
