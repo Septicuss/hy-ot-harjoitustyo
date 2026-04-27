@@ -17,11 +17,11 @@ of the two default machines, which will make the machine busy for 10s.
 * `[State]` Player & machine inventory ✅
 * `[State]` Orders 🕛
 * `[State]` Automatic game saves using `save` module 🕛
-* `[State]` Tile system for machines & farmland 🕛
+* `[State]` Tile system for machines & farmland ✅
 * `[State]` Buying & selling tiles 🕛
 * `[UI]` Loading UI assets from blueprints & bitmaps ✅
 * `[UI]` Hotbar ✅
-* `[UI]` Hotbar item selection (Q + E / left + right) 🕛
+* `[UI]` Hotbar item selection (Q + E / left + right) ✅
 * `[UI]` Dragging items from hotbar onto machines ✅
 * `[UI]` Dragging items from hotbar onto orders 🕛
 * `[UI]` Machine UI (preparing items & showing recipes) 🕛

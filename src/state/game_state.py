@@ -1,3 +1,5 @@
+from typing import Literal
+
 from blueprint.blueprints import MachineBlueprint, ItemReference, RecipeBlueprint
 from blueprint.game_blueprint import GameBlueprint
 from save.save import GameSave
@@ -12,13 +14,18 @@ class GameState:
         self.timer: float = 0
         self.tiles: dict[int, Machine] = {}
 
-        # Initialize default tiles if first game run
+        # Initialize defaults on first game run
         if save.is_first_run:
+            # Set default tiles
             for tile, machine_id in self.blueprint.constants.default_tiles.items():
                 machine_blueprint = self.blueprint.machines.get(machine_id)
                 machine = Machine(self, machine_blueprint, tile)
 
                 self.set_tile(tile, machine)
+
+            # Add default items
+            for item_ref in self.blueprint.constants.default_items:
+                self.player.inventory.add_item(item_ref.id, item_ref.amount)
 
     def get_tile(self, tile: int) -> "Machine | None":
         self.tiles.get(tile)
@@ -31,8 +38,9 @@ class GameState:
 
         # Set selected item if not set
         selected_item = self.player.get_selected_item()
+        selected_item_amount = self.player.inventory.get_item_amount(selected_item)
 
-        if selected_item is None and len(self.player.inventory.get_all_item_ids()) > 0:
+        if selected_item is None and len(self.player.inventory.get_all_item_ids()) > 0 or selected_item_amount <= 0:
             self.player.cycle_selected_item()
 
         # Update machines
@@ -140,6 +148,7 @@ class Machine:
         if self.inventory.is_full():
             return
 
+        self.state.player.inventory.remove_item(item_id, 1)
         self.inventory.add_item(item_id)
 
         # Check if any recipe has been matched
@@ -188,12 +197,24 @@ class Player:
     def set_selected_item(self, item_id: str):
         self._selected_item = item_id
 
-    def cycle_selected_item(self):
-        if self._selected_item is None:
-            self.set_selected_item(self.inventory.get_all_item_ids()[0])
-            return
+    def _item_keys(self):
+        return list(self.inventory.get_all_items().keys())
 
-        for item_id in self.inventory.get_all_item_ids():
-            if item_id != self._selected_item:
-                self.set_selected_item(item_id)
-                break
+    def cycle_selected_item(self, direction: Literal['left', 'right'] = 'left'):
+        direction_index = -1 if direction == 'left' else 1
+        keys = self._item_keys()
+
+        if len(keys) == 0:
+            self._selected_item = None
+            return None
+
+        if not keys:
+            self._selected_item = None
+
+        if self._selected_item not in keys:
+            self._selected_item = keys[0]
+            return self._selected_item
+
+        i = keys.index(self._selected_item)
+        self._selected_item = keys[(i + direction_index) % len(keys)]
+        return self._selected_item

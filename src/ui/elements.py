@@ -117,8 +117,24 @@ class HotbarUI(TileUIElement):
         # Whether the current item is being dragged
         self.dragging = False
 
+        # Hints (Q, E)
+        hint_padding = 10
+        hint_size = 40
+        hint_y = self.tile_rect.y + self.tile_rect.height/2 - hint_size/2
+
+        def create_hint(key, x):
+            rect = pygame.Rect(x, hint_y, hint_size, hint_size)
+            text = self.font.render(key, True, self.hotbar_tooltip_text_color)
+            return rect, text
+
+        self.hints = [
+            create_hint('Q', self.tile_rect.x - hint_padding - hint_size),
+            create_hint('E', self.tile_rect.x + self.tile_rect.width + hint_padding)
+        ]
+
         # Selected item sprites
         self.selected_item_id = None
+        self.selected_item_amount = None
         self.sprite: LoadedItemSprites | None = None
         self.tooltip = None
         self.amount_text = None
@@ -132,9 +148,13 @@ class HotbarUI(TileUIElement):
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.hitbox.collidepoint(mouse_pos):
-                self.dragging = True
+                if self.selected_item_id is not None:
+                    self.dragging = True
 
         if event.type == pygame.MOUSEBUTTONUP:
+            if not self.dragging:
+                return
+
             self.dragging = False
             for tile in list(self.assets.tiles.values()):
                 if tile.hitbox.collidepoint(mouse_pos):
@@ -142,28 +162,48 @@ class HotbarUI(TileUIElement):
 
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_q:
+                self.state.player.cycle_selected_item('left')
+            if event.key == pygame.K_e:
+                self.state.player.cycle_selected_item('right')
 
 
     def update(self, delta_time: float):
         selected_item_id = self.state.player.get_selected_item()
+        selected_item_amount = self.state.player.inventory.get_item_amount(selected_item_id)
 
-        # Only update if selected item changed
-        if selected_item_id is self.selected_item_id:
+        # Only update if selected item or its amount changed
+        if selected_item_id is self.selected_item_id and selected_item_amount == self.selected_item_amount:
             return
 
-        item_amount = self.state.player.inventory.get_item_amount(selected_item_id)
-        item_name = self.state.blueprint.get_game_element(selected_item_id).name
+        if selected_item_id is None:
+            self.selected_item_id = None
+            self.selected_item_amount = None
+            self.sprite = None
+            self.tooltip = None
+            self.amount_text = None
+            self.amount_rect = None
+            return
+
+        selected_item_name = self.state.blueprint.get_game_element(selected_item_id).name
 
         # Update displayed selected hotbar item UI
         self.sprite: LoadedItemSprites = self.assets.get_recipe_sprites(self.state.blueprint, selected_item_id)
         self.selected_item_id = selected_item_id
-        self.tooltip = self.font.render(item_name, True, self.hotbar_tooltip_text_color)
-        self.amount_text = self.font.render(str(item_amount), True, self.hotbar_amount_text_color)
+        self.tooltip = self.font.render(selected_item_name, True, self.hotbar_tooltip_text_color)
+        self.amount_text = self.font.render(str(selected_item_amount), True, self.hotbar_amount_text_color)
         self.amount_rect = pygame.Rect((self.tile_rect.x - (self.amount_text.get_width() - 5)), self.tile_rect.y + self.tile_rect.height - 20, self.amount_text.get_width() * 2, 40)
 
     def draw(self, surface: Surface):
         super().draw(surface)
-        
+
+        # Draw hints
+        for rect, text in self.hints:
+            pygame.draw.rect(surface, self.hotbar_bg_color, rect, border_radius=5)
+            surface.blit(
+                text,
+                text.get_rect(center=rect.center)
+            )
+
         if self.dragging: # Draw the dragged item sprite
             mouse_pos = pygame.mouse.get_pos()
             item_width = self.sprite.main.get_width()

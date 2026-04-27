@@ -3,8 +3,16 @@
     "default_coins": 10,
     "default_items": [
       {
+        "id": "berry",
+        "amount": 1
+      },
+      {
+        "id": "soy",
+        "amount": 1
+      },
+      {
         "id": "wheat",
-        "amount": 2
+        "amount": 1
       }
     ],
     "default_tiles": {
