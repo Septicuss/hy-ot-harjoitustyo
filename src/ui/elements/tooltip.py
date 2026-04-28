@@ -136,7 +136,7 @@ class TooltipUI(UIElement):
                 return surface
 
             def machine_progress_bar():
-                total_time = self.state.blueprint.recipes.get(machine.result).time
+                total_time = machine.result.time
                 time_remaining = machine.time_remaining
                 time_passed = total_time - time_remaining
                 progress_width = self.bar_width * (time_passed / total_time)

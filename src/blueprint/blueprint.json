@@ -62,12 +62,14 @@
       "id": "wheat",
       "name": "Wheat",
       "type": "crop",
+      "amount": 2,
       "time": 5,
       "recipe": [{"id": "wheat"}]
     },
     {
       "id": "soy",
       "name": "Soy",
+      "amount": 2,
       "type": "crop",
       "time": 10,
       "recipe": [{"id": "soy"}]
@@ -75,6 +77,7 @@
     {
       "id": "berry",
       "name": "Berry",
+      "amount": 2,
       "type": "crop",
       "time": 15,
       "recipe": [{"id": "berry"}]

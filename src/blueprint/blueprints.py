@@ -136,6 +136,7 @@ class RecipeBlueprint(GameElementBlueprint):
                  recipe_id: str,
                  name: str,
                  time: float,
+                 amount: int = 1,
                  *,
                  recipe_type: RecipeType,
                  recipe: list[ItemReference]):
@@ -143,6 +144,7 @@ class RecipeBlueprint(GameElementBlueprint):
         self.id = recipe_id
         self.name = name
         self.time = time
+        self.amount = amount
         self.type = recipe_type
         self.recipe = recipe
 
@@ -166,6 +168,7 @@ class RecipeBlueprint(GameElementBlueprint):
             recipe_id= recipe_id,
             name = data["name"],
             time = data["time"],
+            amount = int(data.get("amount", 1)),
             recipe_type=RecipeType(data.get("type", "item")),
             recipe = recipe
         )

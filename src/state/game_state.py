@@ -122,7 +122,7 @@ class Machine:
 
         self.busy: bool = False
         self.time_remaining: float = 0
-        self.result: str | None = None
+        self.result: RecipeBlueprint | None = None
 
     def get_recipes(self) -> list[RecipeBlueprint]:
         return [
@@ -212,7 +212,7 @@ class Machine:
 
         self.inventory.clear()
 
-        self.result = recipe.id
+        self.result = recipe
         self.busy = True
         self.time_remaining = recipe.time
 
@@ -226,7 +226,7 @@ class Machine:
             self.finish()
 
     def finish(self):
-        self.state.player.inventory.add_item(self.result)
+        self.state.player.inventory.add_item(self.result.id, self.result.amount)
 
         self.result = None
         self.busy = False
