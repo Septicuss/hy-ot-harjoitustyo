@@ -24,11 +24,11 @@ of the two default machines, which will make the machine busy for 10s.
 * `[UI]` Hotbar item selection (Q + E / left + right) ✅
 * `[UI]` Dragging items from hotbar onto machines ✅
 * `[UI]` Dragging items from hotbar onto orders 🕛
-* `[UI]` Machine UI (preparing items & showing recipes) 🕛
+* `[UI]` Machine UI (preparing items & showing recipes) ✅
 * `[UI]` Order UI (rendering orders) 🕛
-* `[UI]` Rendering the tile system (machines) 🕛
+* `[UI]` Rendering the tile system (machines) ✅
 * `[UI]` Buying and selling tiles (machines) 🕛
-* `[UI]` Tooltips 🕛
+* `[UI]` Tooltips ✅
 * `[Save]` Saving and loading saves (`save` module) 🕛
 
 
