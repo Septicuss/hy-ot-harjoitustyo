@@ -27,3 +27,15 @@ In the next weeks interaction with the hotbar & items will be more defined.
 
 Result of this week was to make the state be able to handle future ui interactions,
 like adding items to machines and preparing items. 
+
+## Week 6
+
+
+- `feat(ui/state):` Finalized tile system, where all machines are on a 3x3 grid. Includes detection via hitboxes and loading default tiles.
+- `feat(blueprint):` Recipes can now have amounts, so that a farm returns double the crops planted
+- `feat(ui):` Added tooltips, that when hovering over a machine show its live status (recipes & crafting progress)
+
+This week has mostly been UI work and finishing up the crafting system. 
+The result is a demo in which you are given a crop of each type, can plant them to grow
+more and then refine them in bakery or juice machine.
+

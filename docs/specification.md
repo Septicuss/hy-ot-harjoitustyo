@@ -13,7 +13,7 @@ Excess crops can be used to craft products to complete randomized orders and gai
 of the two default machines, which will make the machine busy for 10s.
 
 * `[Blueprint]` Loading game blueprints from `blueprints.json` ✅
-* `[State]` Machines and crafting 🕛
+* `[State]` Machines and crafting ✅
 * `[State]` Player & machine inventory ✅
 * `[State]` Orders 🕛
 * `[State]` Automatic game saves using `save` module 🕛

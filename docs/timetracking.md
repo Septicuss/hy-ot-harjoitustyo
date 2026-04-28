@@ -14,5 +14,7 @@
 | 18.4 | 3     | work on machine state                                       |
 | 21.4 | 2     | machine state                                               |
 | 21.4 | 1     | ui                                                          |
+| 27.4 | 2     | tiles & tooltips                                            |
+| 28.4 | 6     | tiles, tooltips, machines, effects                          |
 
-Total: 25
+Total: 33
