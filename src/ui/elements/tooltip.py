@@ -4,7 +4,8 @@ from pygame.event import Event
 
 from state.game_state import GameState, Machine
 from ui.assets import GameAssets
-from ui.base_elements import UIElement, TileUIElement, MachineUI
+from ui.base_elements import UIElement, TileUIElement
+from ui.elements.machine import MachineUI
 
 
 class TooltipUI(UIElement):
@@ -186,6 +187,9 @@ class TooltipUI(UIElement):
 
             if mx + width > self.assets.screen_width:
                 x = mx - width
+
+            if my - height < 0:
+                y = my
 
             surface.blit(
                 self.tooltip,

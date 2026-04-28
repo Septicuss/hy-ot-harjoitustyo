@@ -18,13 +18,9 @@
     "default_tiles": {
       "0": "farmland",
       "1": "farmland",
-      "2": "bakery",
-      "3": "juice_press",
-      "4": "juice_press",
-      "5": "juice_press",
-      "6": "juice_press",
-      "7": "juice_press",
-      "8": "juice_press"
+      "2": "farmland",
+      "3": "bakery",
+      "4": "juice_press"
     }
   },
   "sprites": {
@@ -71,7 +67,7 @@
       "name": "Soy",
       "amount": 2,
       "type": "crop",
-      "time": 10,
+      "time": 5,
       "recipe": [{"id": "soy"}]
     },
     {
@@ -79,7 +75,7 @@
       "name": "Berry",
       "amount": 2,
       "type": "crop",
-      "time": 15,
+      "time": 5,
       "recipe": [{"id": "berry"}]
     },
     {

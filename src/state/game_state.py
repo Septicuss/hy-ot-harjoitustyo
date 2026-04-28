@@ -112,10 +112,11 @@ class Inventory:
         return references
 
 class Machine:
-    def __init__(self, state: GameState, blueprint: MachineBlueprint, tile: int):
+    def __init__(self, state: GameState, blueprint: MachineBlueprint, tile: int, on_finish=None):
         self.state = state
         self.blueprint = blueprint
         self.tile = tile
+        self.on_finish = on_finish
 
         self.slots = state.blueprint.get_required_machine_slots(blueprint.id)
         self.inventory: Inventory = Inventory(self.slots)
@@ -170,17 +171,17 @@ class Machine:
 
         return None
 
-    def add_item(self, item_id: str):
+    def add_item(self, item_id: str) -> bool:
         if self.busy:
-            return
+            return False
 
         if self.inventory.is_full():
-            return
+            return False
 
         ids = {ingredient.id for recipe in self.get_recipes() for ingredient in recipe.recipe}
 
         if not item_id in ids:
-            return
+            return False
 
         # TODO: Check if adding an item actually contributes to the recipe
         # [wheat, wheat, berry]
@@ -199,6 +200,8 @@ class Machine:
         if len(recipes) == 1:
             first = recipes[0]
             self.set_busy(first)
+
+        return True
 
     def set_busy(self, recipe: RecipeBlueprint):
 
@@ -227,6 +230,9 @@ class Machine:
 
     def finish(self):
         self.state.player.inventory.add_item(self.result.id, self.result.amount)
+
+        if self.on_finish:
+            self.on_finish()
 
         self.result = None
         self.busy = False

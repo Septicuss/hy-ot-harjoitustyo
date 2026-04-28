@@ -31,6 +31,7 @@ class GameAssets:
         self.screen_width = self.screen_size[0]
         self.screen_height = self.screen_size[1]
         self.tiles = {}
+        self.effects = None
 
         # Objects
         self.hint_font = pygame.font.Font("src/ui/assets/font.ttf", 15)

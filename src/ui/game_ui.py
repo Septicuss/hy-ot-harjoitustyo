@@ -3,8 +3,11 @@ from pygame.event import Event
 
 from state.game_state import GameState
 from ui.assets import GameAssets
-from ui.base_elements import UIElement, MachineUI, HotbarUI
+from ui.base_elements import UIElement
+from ui.elements.effects import EffectUI
 from ui.elements.tooltip import TooltipUI
+from ui.elements.hotbar import HotbarUI
+from ui.elements.machine import MachineUI
 
 
 class GameUI:
@@ -41,7 +44,11 @@ class GameUI:
         }
 
         # Load ui elements
+        effect = EffectUI(self.assets, self.state)
+        self.assets.effects = effect
+
         self.elements: list[UIElement] = [
+            effect,
             TooltipUI(self.assets, self.state),
             HotbarUI(self.assets, self.state),
             *self.assets.tiles.values(),
