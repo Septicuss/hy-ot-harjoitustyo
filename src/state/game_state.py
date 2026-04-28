@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Literal
 
 from blueprint.blueprints import MachineBlueprint, ItemReference, RecipeBlueprint
@@ -110,7 +111,6 @@ class Inventory:
 
         return references
 
-
 class Machine:
     def __init__(self, state: GameState, blueprint: MachineBlueprint, tile: int):
         self.state = state
@@ -123,6 +123,36 @@ class Machine:
         self.busy: bool = False
         self.time_remaining: float = 0
         self.result: str | None = None
+
+    def get_recipes(self) -> list[RecipeBlueprint]:
+        return [
+            self.state.blueprint.recipes.get(recipe_id)
+            for recipe_id, _ in self.blueprint.recipes
+        ]
+
+    def get_recipe_array(self) -> list[list[tuple[str, bool]]]:
+        result = []
+
+        recipes = self.get_recipes()
+
+        for recipe in recipes:
+            recipe_result: list[tuple[str, bool]] = []
+            ingredient_ids = recipe.get_recipe_as_id_array() # [wheat, wheat]
+            ingredient_amounts = {}
+
+            for ingredient_id in ingredient_ids:
+                if ingredient_id not in ingredient_amounts:
+                    ingredient_amounts[ingredient_id] = 0
+                ingredient_amounts[ingredient_id] += 1
+
+                owned_amount = self.inventory.get_item_amount(ingredient_id)
+                present = owned_amount >= ingredient_amounts[ingredient_id]
+
+                recipe_result.append((ingredient_id, present))
+
+            result.append(recipe_result)
+
+        return result
 
     def get_items(self) -> list[ItemReference]:
         return self.inventory.to_references()
@@ -140,13 +170,21 @@ class Machine:
 
         return None
 
-
     def add_item(self, item_id: str):
         if self.busy:
             return
 
         if self.inventory.is_full():
             return
+
+        ids = {ingredient.id for recipe in self.get_recipes() for ingredient in recipe.recipe}
+
+        if not item_id in ids:
+            return
+
+        # TODO: Check if adding an item actually contributes to the recipe
+        # [wheat, wheat, berry]
+        # [wheat, wheat, soy]
 
         self.state.player.inventory.remove_item(item_id, 1)
         self.inventory.add_item(item_id)
@@ -163,6 +201,17 @@ class Machine:
             self.set_busy(first)
 
     def set_busy(self, recipe: RecipeBlueprint):
+
+        # Consume items
+        for ingredient_id, ingredient_amount in recipe.recipe:
+            self.inventory.remove_item(ingredient_id, ingredient_amount)
+
+        # Refund leftovers to player
+        for item_id, item_amount in self.inventory.to_references():
+            self.state.player.inventory.add_item(item_id, item_amount)
+
+        self.inventory.clear()
+
         self.result = recipe.id
         self.busy = True
         self.time_remaining = recipe.time

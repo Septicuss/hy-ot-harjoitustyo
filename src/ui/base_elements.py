@@ -92,7 +92,6 @@ class TileUIElement(UIElement):
             border_radius=self.radius - self.border_width
         )
 
-
 class HotbarUI(TileUIElement):
 
     bottom_padding_percentage: float = 0.1
@@ -252,6 +251,7 @@ class MachineUI(TileUIElement):
 
         self.blueprint = machine.blueprint
         self.machine = machine
+        self.tile = tile
 
         self.is_crop = self.blueprint.render == MachineRenderType.CROP
 

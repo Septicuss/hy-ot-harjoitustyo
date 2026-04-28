@@ -32,6 +32,10 @@ class ItemReference:
     def __eq__(self, other):
         return self.id == other.id and self.amount == other.amount
 
+    def __iter__(self):
+        yield self.id
+        yield self.amount
+
     @classmethod
     def from_dict(cls, data):
         return cls(
@@ -144,6 +148,12 @@ class RecipeBlueprint(GameElementBlueprint):
 
     def __repr__(self):
         return f"RecipeBlueprint({self.id}, {self.name}, {self.time}, {self.recipe})"
+
+    def get_recipe_as_id_array(self):
+        result = []
+        for ingredient_ref in self.recipe:
+            result += [ingredient_ref.id] * ingredient_ref.amount
+        return result
 
     @classmethod
     def from_dict(cls, data):
