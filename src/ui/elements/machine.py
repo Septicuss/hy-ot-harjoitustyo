@@ -1,7 +1,7 @@
 import pygame
 from pygame import Surface
 
-from blueprint.blueprints import MachineRenderType
+from blueprint.blueprints import MachineRenderType, RecipeType
 from state.game_state import GameState, Machine
 from ui.assets import GameAssets, LoadedMachineSprites
 from ui.base_elements import TileUIElement, grid_tile_to_pixel_coord
@@ -30,6 +30,8 @@ class MachineUI(TileUIElement):
         self.previously_hit = False
 
         self.is_crop = self.blueprint.render == MachineRenderType.CROP
+        self.crop_surface: Surface | None = None
+        self.update_timer = 0
 
         # do not initialize sprites, as crops use dynamic sprites
         if self.is_crop:
@@ -56,12 +58,46 @@ class MachineUI(TileUIElement):
         return 1
 
     def update(self, delta_time: float):
+
+        # Update once in 0.5s
+        self.update_timer += delta_time
+        if self.update_timer < 0.5:
+            return
+        self.update_timer = 0
+
+        # Only for machines that render crops
+        if self.is_crop:
+            result = self.machine.result
+
+            # Not busy
+            if not self.machine.busy or result is None:
+                self.crop_surface = None
+                return
+
+            # Cannot render non crops
+            if not result.type == RecipeType.CROP:
+                self.crop_surface = None
+                return
+
+            time_passed = result.time - self.machine.time_remaining
+            done_percentage = (time_passed / result.time) * 100
+            stage = 3 if done_percentage >= 95 else 2 if done_percentage >= 50 else 1
+            
+            sprite = self.assets.get_crop_sprites(self.state.blueprint, result.id)
+            sprite_surface = sprite.stage_3 if stage == 3 else sprite.stage_2 if stage == 2 else sprite.stage_1
+
+            self.crop_surface = pygame.Surface((32, 32), pygame.SRCALPHA)
+            self.crop_surface.blit(sprite_surface, sprite_surface.get_rect(center=self.crop_surface.get_rect().center))
+
         pass
 
     def draw(self, surface: Surface):
         super().draw(surface)
 
+        # Draw crop stage
         if self.is_crop:
+            if self.crop_surface is not None:
+                surface.blit(self.crop_surface, self.crop_surface.get_rect(center=self.tile_rect.center))
             return
 
         # Draw sprite depending on busy state
