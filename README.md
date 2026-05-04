@@ -8,9 +8,15 @@ Subject: *A simple Python 'Hay Day'-like farming game*
 - [Time Tracking](https://github.com/Septicuss/hy-ot-harjoitustyo/blob/main/docs/timetracking.md)
 - [Changelog](https://github.com/Septicuss/hy-ot-harjoitustyo/blob/main/docs/changelog.md)
 - [Architecture](https://github.com/Septicuss/hy-ot-harjoitustyo/blob/main/docs/architecture.md)
-- [Latest Release](https://github.com/Septicuss/hy-ot-harjoitustyo/releases/latest)
+- [Usage Guide](https://github.com/Septicuss/hy-ot-harjoitustyo/blob/main/docs/guide.md)
+
+**Releases**
+- [Release Week 5](https://github.com/Septicuss/hy-ot-harjoitustyo/releases/tag/viikko5)
+- [Release Week 6](https://github.com/Septicuss/hy-ot-harjoitustyo/releases/tag/viikko6)
 
 ## Installation
+
+(More detailed usage guide in [Usage Guide](https://github.com/Septicuss/hy-ot-harjoitustyo/blob/main/docs/guide.md))
 
 1. Install Poetry dependencies with
 
