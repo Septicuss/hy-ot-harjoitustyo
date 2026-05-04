@@ -73,10 +73,15 @@ class TooltipUI(UIElement):
 
             padding_top = title.get_height() + padding
 
-            wrapper = pygame.Surface((surface.get_width() + 2 * padding, surface.get_height() + padding_top + padding), pygame.SRCALPHA)
+            wrapper_width = max(surface.get_width() + (2 * padding), title.get_width() + 10)
+            wrapper_height = surface.get_height() + padding_top + padding
+
+            padding_left = ((wrapper_width - surface.get_width()) / 2)
+
+            wrapper = pygame.Surface((wrapper_width, wrapper_height), pygame.SRCALPHA)
             wrapper_rect = pygame.Rect(0, 0, wrapper.get_width(), wrapper.get_height())
             pygame.draw.rect(wrapper, self.tooltip_bg_color, wrapper_rect, border_radius=10)
-            wrapper.blit(surface, (padding, padding_top))
+            wrapper.blit(surface, (padding_left, padding_top))
 
             title_rect = title.get_rect(center=wrapper_rect.midtop)
             title_rect.y = title_rect.centery + padding
@@ -189,7 +194,8 @@ class TooltipUI(UIElement):
                 x = mx - width
 
             if my - height < 0:
-                y = my
+                y = my + 20
+                x = x + 20
 
             surface.blit(
                 self.tooltip,
