@@ -1,3 +1,5 @@
+from typing import Literal
+
 import pygame
 from pygame import Surface
 from pygame.event import Event
@@ -96,7 +98,7 @@ class TooltipUI(UIElement):
         if isinstance(tile, MachineUI):
             machine: Machine = tile.machine
 
-            def item_icon(item_id: str, present: bool = False) -> Surface:
+            def item_icon(item_id: str, variant: Literal['default', 'present', 'none'] = 'default') -> Surface:
                 icon_surface = pygame.Surface((self.icon_size + self.icon_padding, self.icon_size + self.icon_padding), pygame.SRCALPHA)
                 icon_bg = pygame.Rect(
                     0, 0, icon_surface.get_width(), icon_surface.get_height()
@@ -106,16 +108,21 @@ class TooltipUI(UIElement):
                     size=(self.icon_size, self.icon_size)
                 )
 
-                bg_color = self.icon_present_bg_color if present else self.icon_bg_color
+                bg_color = self.icon_present_bg_color if variant == 'present' else None if variant == 'none' else  self.icon_bg_color
 
-                pygame.draw.rect(icon_surface, bg_color, icon_bg, border_radius=10)
+                if bg_color is not None:
+                    pygame.draw.rect(icon_surface, bg_color, icon_bg, border_radius=10)
+
                 icon_surface.blit(icon, icon.get_rect(center=icon_bg.center))
+
                 return icon_surface
 
-            def item_row(items: list[tuple[str, bool]]) -> Surface:
-                item_icons = [item_icon(item_id, present) for item_id, present in items]
+            def item_row(item_id: str, items: list[tuple[str, bool]]) -> Surface:
+                item_icons = [item_icon(item_id, 'present' if present else 'default') for item_id, present in items]
                 item_icon_width = max(icon.get_width() for icon in item_icons)
                 item_icon_height = max(icon.get_height() for icon in item_icons)
+
+                item_icons = [item_icon(item_id, 'none'), *item_icons]
 
                 row_surface = pygame.Surface(
                     (len(item_icons) * (item_icon_width + self.icon_padding) - self.icon_padding, item_icon_height),
@@ -130,8 +137,8 @@ class TooltipUI(UIElement):
 
                 return row_surface
 
-            def machine_info(item_rows: list[list[tuple[str, bool]]]):
-                rows = [item_row(items) for items in item_rows]
+            def machine_info(recipe_map: dict[str, list[tuple[str, bool]]]):
+                rows = [item_row(recipe_id, recipe_items) for recipe_id, recipe_items in recipe_map.items()]
                 width = max(r.get_width() for r in rows) + (2 * self.icon_padding)
                 height = sum(r.get_height() for r in rows) + self.icon_padding * (len(rows) + 1)
 
@@ -191,7 +198,7 @@ class TooltipUI(UIElement):
 
             # Show either a progress bar or machine recipe info
             self.tooltip = tooltip(
-                surface=machine_progress_bar() if machine.busy else machine_info(machine.get_recipe_array()),
+                surface=machine_progress_bar() if machine.busy else machine_info(machine.get_recipe_map()),
                 padding=self.icon_padding,
                 title_text=machine.blueprint.name
             )

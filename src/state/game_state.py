@@ -134,8 +134,8 @@ class Machine:
             for recipe_id, _ in self.blueprint.recipes
         ]
 
-    def get_recipe_array(self) -> list[list[tuple[str, bool]]]:
-        result = []
+    def get_recipe_map(self) -> dict[str, list[tuple[str, bool]]]:
+        result = {}
 
         recipes = self.get_recipes()
 
@@ -154,7 +154,7 @@ class Machine:
 
                 recipe_result.append((ingredient_id, present))
 
-            result.append(recipe_result)
+            result[recipe.id] = recipe_result
 
         return result
 
