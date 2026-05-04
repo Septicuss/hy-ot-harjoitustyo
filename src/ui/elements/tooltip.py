@@ -149,6 +149,7 @@ class TooltipUI(UIElement):
                 # Get recipe properties
                 total_time = machine.result.time
                 recipe_name = machine.result.name
+                recipe_amount = machine.result.amount
                 time_remaining = machine.time_remaining
                 time_passed = total_time - time_remaining
                 progress_width = self.bar_width * (time_passed / total_time)
@@ -168,7 +169,7 @@ class TooltipUI(UIElement):
                 # -- Container
 
                 # Recipe name
-                recipe_name_text = self.assets.font.render(recipe_name, True, self.text_sub_color)
+                recipe_name_text = self.assets.font.render(f"{recipe_amount}x {recipe_name}", True, self.text_sub_color)
 
                 # Container
                 width = max(self.bar_width + self.icon_padding, recipe_name_text.get_width() + self.icon_padding)

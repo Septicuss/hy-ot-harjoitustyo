@@ -11,12 +11,13 @@ from ui.elements.effects import ItemMoveEffect
 class MachineUI(TileUIElement):
 
     bg_color = (255, 251, 210)
-    border_color = (51, 51, 43)
+    default_border_color = (51, 51, 43)
+    pressed_border_color = (140, 140, 140)
 
     def __init__(self, assets: GameAssets, state: GameState, machine: Machine, tile: int):
         super().__init__(
             bg_color=self.bg_color,
-            border_color=self.border_color,
+            border_color=self.default_border_color,
             center=grid_tile_to_pixel_coord(assets, tile)
         )
 
@@ -26,6 +27,7 @@ class MachineUI(TileUIElement):
         self.machine = machine
         self.machine.on_finish = lambda: self._trigger_finished_effect()
         self.tile = tile
+        self.previously_hit = False
 
         self.is_crop = self.blueprint.render == MachineRenderType.CROP
 
@@ -67,5 +69,35 @@ class MachineUI(TileUIElement):
         surface.blit(sprite_to_use, self.machine_icon_dest)
 
     def handle_event(self, event):
-        pass
+        mouse_pos = pygame.mouse.get_pos()
 
+        def hit() -> bool:
+            return self.hitbox.collidepoint(mouse_pos)
+
+        if self.machine.busy:
+            return
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if hit() and self.machine.inventory.size() > 0:
+                self.border_color = self.pressed_border_color
+                self.previously_hit = True
+
+        if event.type == pygame.MOUSEBUTTONUP:
+            if self.border_color == self.pressed_border_color:
+                self.border_color = self.default_border_color
+
+            if self.previously_hit:
+                self.previously_hit = False
+
+                item = self.machine.remove_last_item()
+
+                # If successfully removed last item, play effect of item going to hotbar
+                if item is not None:
+                    item_sprite = self.assets.get_recipe_sprites(self.state.blueprint, item.id).main
+                    item_sprite = pygame.transform.scale(item_sprite, (32, 32))
+
+                    self.assets.effects.submit_item_move(ItemMoveEffect(
+                        item_sprite,
+                        self.tile_rect.center,
+                        (self.assets.screen_width / 2, self.assets.screen_height + 50)
+                    ))

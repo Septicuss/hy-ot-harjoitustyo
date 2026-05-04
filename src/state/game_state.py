@@ -60,6 +60,10 @@ class Inventory:
             return False
         return utils.item_count_sum(self.to_references()) >= self._item_limit
 
+    def size(self) -> int:
+        """Returns the amount of unique items in the inventory"""
+        return len(self._items)
+
     def get_all_items(self) -> dict[str, int]:
         """Get a dict of all items [id, amount]"""
         return self._items
@@ -166,6 +170,7 @@ class Machine:
         if len(item_ids) >= 1:
             first = item_ids[0]
             removed = self.inventory.remove_item(first)
+            self.state.player.inventory.add_item(removed.id, removed.amount)
             return removed
 
         return None
