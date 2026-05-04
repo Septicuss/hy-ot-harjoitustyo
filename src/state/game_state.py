@@ -124,6 +124,7 @@ class Machine:
         self.slots = state.blueprint.get_required_machine_slots(blueprint.id)
         self.inventory: Inventory = Inventory(self.slots)
 
+        self.collectable: bool = False
         self.busy: bool = False
         self.time_remaining: float = 0
         self.result: RecipeBlueprint | None = None
@@ -224,7 +225,12 @@ class Machine:
         self.time_remaining = recipe.time
 
     def update(self, delta_time: float):
+        # Not working on anything
         if not self.busy:
+            return
+
+        # Waiting for player to collect
+        if self.collectable:
             return
 
         self.time_remaining -= delta_time
@@ -232,7 +238,7 @@ class Machine:
         if self.time_remaining <= 0:
             self.finish()
 
-    def finish(self):
+    def collect(self):
         self.state.player.inventory.add_item(self.result.id, self.result.amount)
 
         if self.on_finish:
@@ -240,7 +246,13 @@ class Machine:
 
         self.result = None
         self.busy = False
+        self.collectable = False
         self.time_remaining = 0
+
+    def finish(self):
+        self.collectable = True
+        self.time_remaining = 0
+
 
 
 class Player:
