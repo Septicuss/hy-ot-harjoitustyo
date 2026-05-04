@@ -10,6 +10,9 @@ from ui.elements.machine import MachineUI
 
 class TooltipUI(UIElement):
 
+    text_color = (0, 0, 0)
+    text_sub_color = (140, 140, 140)
+
     icon_size = 32
     icon_padding = 10
     icon_bg_color = (189, 184, 142)
@@ -69,7 +72,7 @@ class TooltipUI(UIElement):
         def tooltip(surface: Surface, title_text: str = "Tooltip", padding: int = 10) -> Surface:
             """Wraps a surface within a tooltip background with given padding"""
 
-            title = self.assets.font.render(title_text, True, (0, 0, 0))
+            title = self.assets.font.render(title_text, True, self.text_color)
 
             padding_top = title.get_height() + padding
 
@@ -142,20 +145,50 @@ class TooltipUI(UIElement):
                 return surface
 
             def machine_progress_bar():
+
+                # Get recipe properties
                 total_time = machine.result.time
+                recipe_name = machine.result.name
                 time_remaining = machine.time_remaining
                 time_passed = total_time - time_remaining
                 progress_width = self.bar_width * (time_passed / total_time)
 
+
+                # -- Progress bar
                 bar_surface = pygame.Surface((self.bar_width, self.bar_height), pygame.SRCALPHA)
                 bar_bg = bar_surface.get_rect()
 
+                # Draw background
                 pygame.draw.rect(bar_surface, self.bar_bg_color, bar_bg, border_radius=50)
+
+                # Draw green bar
                 bar_bg.width = int(progress_width)
                 pygame.draw.rect(bar_surface, self.bar_filled_bg_color, bar_bg, border_radius=50)
 
-                return bar_surface
+                # -- Container
 
+                # Recipe name
+                recipe_name_text = self.assets.font.render(recipe_name, True, self.text_sub_color)
+
+                # Container
+                width = max(self.bar_width + self.icon_padding, recipe_name_text.get_width() + self.icon_padding)
+                height = self.bar_height + self.icon_padding + recipe_name_text.get_height()
+
+                container = pygame.Surface((width, height), pygame.SRCALPHA)
+
+                # Draw text
+                text_rect = recipe_name_text.get_rect(center=container.get_rect().midtop)
+                text_rect.y += self.icon_padding
+                container.blit(recipe_name_text, text_rect)
+
+                # Draw progress bar
+                bar_rect = bar_surface.get_rect(center=container.get_rect().center)
+                bar_rect.y += text_rect.y + self.icon_padding
+                container.blit(bar_surface, bar_rect)
+
+                return container
+
+            # Show either a progress bar or machine recipe info
             self.tooltip = tooltip(
                 surface=machine_progress_bar() if machine.busy else machine_info(machine.get_recipe_array()),
                 padding=self.icon_padding,
