@@ -5,6 +5,7 @@ from state.game_state import GameState
 from ui.assets import GameAssets
 from ui.base_elements import UIElement
 from ui.elements.effects import EffectUI
+from ui.elements.hud import HudUI
 from ui.elements.tooltip import TooltipUI
 from ui.elements.hotbar import HotbarUI
 from ui.elements.machine import MachineUI
@@ -38,6 +39,7 @@ class GameUI:
 
         self.assets = GameAssets(self.SCREEN_SIZE)
 
+
         # Load grid of machines
         self.assets.tiles = {
             tile: MachineUI(self.assets, self.state, machine, tile) for tile, machine in self.state.tiles.items()
@@ -46,8 +48,13 @@ class GameUI:
         # Load ui elements
         effect = EffectUI(self.assets, self.state)
         self.assets.effects = effect
+        hud_ui = HudUI(self.assets, self.state)
+        self.assets.elements = [
+            hud_ui
+        ]
 
         self.elements: list[UIElement] = [
+            hud_ui,
             effect,
             TooltipUI(self.assets, self.state),
             HotbarUI(self.assets, self.state),

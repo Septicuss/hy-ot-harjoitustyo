@@ -7,6 +7,7 @@ from pygame.event import Event
 from state.game_state import GameState, Machine
 from ui.assets import GameAssets
 from ui.base_elements import UIElement, TileUIElement
+from ui.elements.hud import HudUI
 from ui.elements.machine import MachineUI
 
 
@@ -61,8 +62,8 @@ class TooltipUI(UIElement):
                 if not self.tooltip_tile.hitbox.collidepoint(mouse_pos):
                     self._reset()
 
-            # Check for new potential tiles
-            for tile in list(self.assets.tiles.values()):
+            # Check for new potential elements
+            for tile in [*self.assets.tiles.values(), *self.assets.elements]:
                 if tile is None or tile.hitbox is None: continue
                 if tile.hitbox.collidepoint(mouse_pos) and self.potential_tile is not tile:
                     self._reset()
@@ -202,6 +203,16 @@ class TooltipUI(UIElement):
                 padding=self.icon_padding,
                 title_text=machine.blueprint.name
             )
+
+        if isinstance(tile, HudUI):
+
+
+            self.tooltip = tooltip(
+                surface=pygame.Surface((0,0)),
+                padding=self.icon_padding,
+                title_text='Your coins'
+            )
+            pass
 
 
     def update(self, delta_time: float):

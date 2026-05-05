@@ -31,6 +31,7 @@ class GameAssets:
         self.screen_width = self.screen_size[0]
         self.screen_height = self.screen_size[1]
         self.tiles = {}
+        self.elements = []
         self.effects = None
 
         # Objects
@@ -55,6 +56,12 @@ class GameAssets:
         return LoadedMachineSprites(
             self.get_sprite(machine_sprite_mappings.main),
             self.get_sprite(machine_sprite_mappings.busy),
+        )
+
+    def get_single_sprite(self, blueprint: GameBlueprint, sprite_id: str, scale: int = None) -> LoadedItemSprites:
+        sprite_mappings = blueprint.sprites.get_sprite(sprite_id)
+        return LoadedItemSprites(
+            self.get_sprite(sprite_mappings, scale)
         )
 
     def get_recipe_sprites(self, blueprint: GameBlueprint, item_id: str) -> LoadedItemSprites:
