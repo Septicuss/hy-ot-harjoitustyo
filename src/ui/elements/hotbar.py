@@ -1,3 +1,4 @@
+import json
 from enum import Enum
 
 import pygame
@@ -6,6 +7,7 @@ from pygame import Surface
 from state.game_state import GameState
 from ui.assets import GameAssets, LoadedItemSprites
 from ui.base_elements import TileUIElement
+from ui.elements.effects import ToastEffect
 
 
 class HotbarState(Enum):
@@ -79,10 +81,12 @@ class HotbarUI(TileUIElement):
 
             for tile in list(self.assets.tiles.values()):
                 if tile.hitbox.collidepoint(mouse_pos):
-                    success = tile.machine.add_item(self.state.player.get_selected_item())
+                    success, error_message = tile.machine.add_item(self.state.player.get_selected_item())
                     if success:
                         self.drag_state = HotbarState.IDLE
                         return
+                    else:
+                        self.assets.effects.submit_toast(ToastEffect('error', error_message or 'Failed to add item'))
 
             self.drag_state = HotbarState.SPRING
             self.drag_position = mouse_pos

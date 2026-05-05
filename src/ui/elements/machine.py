@@ -5,7 +5,7 @@ from blueprint.blueprints import MachineRenderType, RecipeType
 from state.game_state import GameState, Machine
 from ui.assets import GameAssets, LoadedMachineSprites
 from ui.base_elements import TileUIElement, grid_tile_to_pixel_coord
-from ui.elements.effects import ItemMoveEffect
+from ui.elements.effects import ItemMoveEffect, ToastEffect
 
 
 class MachineUI(TileUIElement):
@@ -135,6 +135,7 @@ class MachineUI(TileUIElement):
 
         if event.type == pygame.MOUSEBUTTONUP:
             if hit() and self.machine.collectable:
+                self.assets.effects.submit_toast(ToastEffect('success', f'+ {self.machine.result.amount} {self.machine.result.name}'))
                 self.machine.collect()
                 self.collectable_surface = None
                 self.crop_surface = None

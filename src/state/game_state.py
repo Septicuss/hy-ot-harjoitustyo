@@ -1,6 +1,6 @@
 from typing import Literal
 
-from blueprint.blueprints import MachineBlueprint, ItemReference, RecipeBlueprint
+from blueprint.blueprints import MachineBlueprint, ItemReference, RecipeBlueprint, RecipeType, MachineRenderType
 from blueprint.game_blueprint import GameBlueprint
 from save.save import GameSave
 from state import utils
@@ -176,22 +176,33 @@ class Machine:
 
         return None
 
-    def add_item(self, item_id: str) -> bool:
+    def add_item(self, item_id: str) -> tuple[bool, str | None]:
+        """Attempt to add the given item to the machine.
+
+        Returns the result with an optional error message.
+        """
         if self.busy:
-            return False
+            return False, f'{self.blueprint.name} is already busy'
 
         if self.inventory.is_full():
-            return False
+            return False, f'{self.blueprint.name} is full'
 
         ids = {ingredient.id for recipe in self.get_recipes() for ingredient in recipe.recipe}
+        item = self.state.blueprint.recipes.get(item_id)
 
         if not item_id in ids:
-            return False
+            item_name = item.name
+            return False, f'{item_name} is not used in {self.blueprint.name}'
 
-        # TODO: Check if adding an item actually contributes to the recipe
-        # [wheat, wheat, berry]
-        # [wheat, wheat, soy]
+        is_crop = item.type == RecipeType.CROP
+        is_farm = self.blueprint.render == MachineRenderType.CROP
+        is_last_item = is_crop and not is_farm and self.state.player.inventory.get_item_amount(item.id) == 1
 
+        # Prevent player from using their last crop
+        if is_last_item:
+            return False, f'Cannot use last crop'
+
+        # Transfer item from players to machines inventory
         self.state.player.inventory.remove_item(item_id, 1)
         self.inventory.add_item(item_id)
 
@@ -206,7 +217,7 @@ class Machine:
             first = recipes[0]
             self.set_busy(first)
 
-        return True
+        return True, None
 
     def set_busy(self, recipe: RecipeBlueprint):
 

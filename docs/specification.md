@@ -29,6 +29,7 @@ of the two default machines, which will make the machine busy for 10s.
 * `[UI]` Rendering the tile system (machines) ✅
 * `[UI]` Buying and selling tiles (machines) 🕛
 * `[UI]` Tooltips ✅
+* `[UI]` Notification Toasts ✅
 * `[Save]` Saving and loading saves (`save` module) 🕛
 
 
