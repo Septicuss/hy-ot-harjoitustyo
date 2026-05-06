@@ -100,6 +100,15 @@ class TooltipUI(UIElement):
         if isinstance(tile, MachineUI):
             machine: Machine = tile.machine
 
+            # For locked machines show price
+            if machine.is_locked():
+                self.tooltip = tooltip(
+                    surface=pygame.Surface((0, 0)),
+                    padding=self.icon_padding,
+                    title_text='Locked'
+                )
+                return
+
             def item_icon(item_id: str, variant: Literal['default', 'present', 'none'] = 'default') -> Surface:
                 icon_surface = pygame.Surface((self.icon_size + self.icon_padding, self.icon_size + self.icon_padding), pygame.SRCALPHA)
                 icon_bg = pygame.Rect(
@@ -202,7 +211,7 @@ class TooltipUI(UIElement):
             self.tooltip = tooltip(
                 surface=machine_progress_bar() if machine.busy else machine_info(machine.get_recipe_map()),
                 padding=self.icon_padding,
-                title_text=machine.blueprint.name
+                title_text=f'{machine.blueprint.name}'
             )
 
         # Set HUD tooltip

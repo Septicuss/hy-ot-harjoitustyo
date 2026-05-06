@@ -15,14 +15,31 @@
         "amount": 1
       }
     ],
-    "default_tiles": {
-      "0": "farmland",
+    "tiles": {
+      "0": "bakery",
       "1": "farmland",
-      "2": "farmland"
+      "2": "bakery",
+      "3": "farmland",
+      "4": "farmland",
+      "5": "farmland",
+      "6": "juice_press",
+      "7": "farmland",
+      "8": "juice_press"
+    },
+    "locked_tiles": {
+      "0": 15,
+      "1": 100,
+      "2": 75,
+      "3": 10,
+      "5": 25,
+      "6": 50,
+      "7": 150,
+      "8": 150
     }
   },
   "sprites": {
     "coin": [3, 3],
+    "lock": [2, 3],
 
     "wheat": [0, 0],
     "wheat_stage_1": [1, 0],
@@ -58,7 +75,7 @@
       "type": "crop",
       "amount": 2,
       "time": 5,
-      "price": {"low":  1, "high":  2},
+      "price": {"low":  5, "high":  15},
       "recipe": [{"id": "wheat"}]
     },
     {
@@ -67,7 +84,7 @@
       "amount": 2,
       "type": "crop",
       "time": 5,
-      "price": {"low":  1, "high":  2},
+      "price": {"low":  5, "high":  15},
       "recipe": [{"id": "soy"}]
     },
     {
@@ -76,14 +93,14 @@
       "amount": 2,
       "type": "crop",
       "time": 5,
-      "price": {"low":  1, "high":  2},
+      "price": {"low":  5, "high":  15},
       "recipe": [{"id": "berry"}]
     },
     {
       "id": "berry_juice",
       "name": "Berry Juice",
       "time": 10,
-      "price": {"low":  10, "high":  20},
+      "price": {"low":  30, "high":  45},
       "recipe": [
         {
           "id": "berry",
@@ -95,7 +112,7 @@
       "id": "smoothie",
       "name": "Smoothie",
       "time": 10,
-      "price": {"low":  10, "high":  20},
+      "price": {"low":  30, "high":  45},
       "recipe": [
         {
           "id": "berry",
@@ -110,7 +127,7 @@
       "id": "berry_bread",
       "name": "Berry Bread",
       "time": 10,
-      "price": {"low":  10, "high":  20},
+      "price": {"low":  20, "high":  35},
       "recipe": [
         {
           "id": "berry",
@@ -126,7 +143,7 @@
       "id": "soy_bun",
       "name": "Soy Bun",
       "time": 10,
-      "price": {"low":  10, "high":  20},
+      "price": {"low":  20, "high":  35},
       "recipe": [
         {
           "id": "soy",

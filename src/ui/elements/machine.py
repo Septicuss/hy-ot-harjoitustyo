@@ -5,12 +5,14 @@ from blueprint.blueprints import MachineRenderType, RecipeType
 from state.game_state import GameState, Machine
 from ui.assets import GameAssets, LoadedMachineSprites
 from ui.base_elements import TileUIElement, grid_tile_to_pixel_coord
+from ui.common import centered_bg_text
 from ui.elements.effects import ItemMoveEffect, ToastEffect
 
 
 class MachineUI(TileUIElement):
 
     bg_color = (255, 251, 210)
+    bg_afford_color = (80, 212, 96)
     default_border_color = (51, 51, 43)
     pressed_border_color = (140, 140, 140)
 
@@ -38,6 +40,10 @@ class MachineUI(TileUIElement):
 
         # Drawn when can collect
         self.collectable_surface: Surface | None = None
+
+        # Drawn when locked
+        self.locked_surface: Surface | None = None
+        self.last_coin_amount: int = self.state.player.coins
 
         # do not initialize sprites, as crops use dynamic sprites
         if self.is_crop:
@@ -87,7 +93,7 @@ class MachineUI(TileUIElement):
 
             time_passed = result.time - self.machine.time_remaining
             done_percentage = (time_passed / result.time) * 100
-            stage = 3 if done_percentage >= 99 else 2 if done_percentage >= 50 else 1
+            stage = 3 if done_percentage >= 100 else 2 if done_percentage >= 50 else 1
             
             sprite = self.assets.get_crop_sprites(self.state.blueprint, result.id)
             sprite_surface = sprite.stage_3 if stage == 3 else sprite.stage_2 if stage == 2 else sprite.stage_1
@@ -119,34 +125,75 @@ class MachineUI(TileUIElement):
         if self.collectable_surface is not None:
             surface.blit(self.collectable_surface, self.collectable_surface.get_rect(center=self.tile_rect.midtop))
 
+        # Draw a gray layer if locked
+        if self.machine.is_locked():
+
+            if not self.locked_surface or self.last_coin_amount != self.state.player.coins:
+                can_afford = self.state.player.coins >= self.machine.get_unlock_price()
+                bg_color = self.bg_afford_color if can_afford else self.bg_color
+
+                locked_surface = pygame.Surface(self.tile_rect.size, pygame.SRCALPHA)
+
+                price_element = centered_bg_text(str(self.machine.get_unlock_price()), bg_color, "coin", text_color=(0,0,0))
+                price_rect = price_element.get_rect(center=locked_surface.get_rect().center)
+                price_rect.y = locked_surface.get_height() - price_element.get_height()
+
+                lock_rect = locked_surface.get_rect()
+                pygame.draw.rect(locked_surface, (0,0,0,50), lock_rect, border_radius=20)
+
+                locked_surface.blit(price_element, price_rect)
+
+                # Lock icon
+                lock_icon = self.assets.get_single_sprite(self.state.blueprint, 'lock', 5).main
+                locked_surface.blit(lock_icon, lock_icon.get_rect(center=lock_rect.center))
+
+                self.locked_surface = locked_surface
+                self.last_coin_amount = self.state.player.coins
+
+            surface.blit(self.locked_surface, self.locked_surface.get_rect(center=grid_tile_to_pixel_coord(self.assets, self.tile)))
+
     def handle_event(self, event):
         mouse_pos = pygame.mouse.get_pos()
 
-        def hit() -> bool:
+        def is_hit() -> bool:
             return self.hitbox.collidepoint(mouse_pos)
 
+        def handle_collect():
+            self.assets.effects.submit_toast(ToastEffect('success', f'+ {self.machine.result.amount} {self.machine.result.name}'))
+            self.machine.collect()
+            self.collectable_surface = None
+            self.crop_surface = None
+
+        def handle_unlock():
+            success = self.machine.unlock()
+            if success:
+                self.assets.effects.submit_toast(ToastEffect('success', f'{self.machine.blueprint.name} unlocked!'))
+            else:
+                self.assets.effects.submit_toast(ToastEffect('error', f'Not enough coins ({self.machine.get_unlock_price()})'))
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.machine.busy:
                 return
-            if hit() and self.machine.inventory.size() > 0:
-                self.border_color = self.pressed_border_color
+
+            if is_hit():
                 self.previously_hit = True
 
         if event.type == pygame.MOUSEBUTTONUP:
-            if hit() and self.machine.collectable:
-                self.assets.effects.submit_toast(ToastEffect('success', f'+ {self.machine.result.amount} {self.machine.result.name}'))
-                self.machine.collect()
-                self.collectable_surface = None
-                self.crop_surface = None
 
-            if self.machine.busy:
+            is_hit_machine = is_hit() and self.previously_hit
+
+            # Handle unlocking
+            if is_hit_machine and self.machine.is_locked():
+                handle_unlock()
                 return
 
-            if self.border_color == self.pressed_border_color:
-                self.border_color = self.default_border_color
+            # Handle collecting
+            if is_hit() and self.machine.collectable:
+                handle_collect()
+                return
 
-            if self.previously_hit:
+            # Handle removing last item, if not busy
+            if is_hit_machine and not self.machine.busy:
                 self.previously_hit = False
 
                 item = self.machine.remove_last_item()

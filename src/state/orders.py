@@ -27,7 +27,7 @@ class Orders:
 
         next_item_id = random.choice(available_items)
         next_item = self.state.blueprint.recipes.get(next_item_id)
-        next_item_amount = random.randint(1, 2)
+        next_item_amount = 2 if random.randint(1, 100) > 80 else 1
         next_item_reward = random.randint(next_item.price[0], next_item.price[1]) * next_item_amount
 
         self.order = ItemReference(next_item_id, next_item_amount)

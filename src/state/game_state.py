@@ -16,15 +16,20 @@ class GameState:
         self.orders = Orders(self)
         self.timer: float = 0
         self.tiles: dict[int, Machine] = {}
+        self.locked_tiles: list[int] = []
 
         # Initialize defaults on first game run
         if save.is_first_run:
+            # Set default locked tiles
+            self.locked_tiles = [int(tile) for tile in self.blueprint.constants.locked_tiles_prices.keys()]
+
             # Set default tiles
             for tile, machine_id in self.blueprint.constants.default_tiles.items():
                 machine_blueprint = self.blueprint.machines.get(machine_id)
                 machine = Machine(self, machine_blueprint, tile)
 
                 self.set_tile(tile, machine)
+
 
             # Add default items
             for item_ref in self.blueprint.constants.default_items:
@@ -35,9 +40,15 @@ class GameState:
         items = []
 
         for tile, machine in self.tiles.items():
+            if machine.is_locked():
+                continue
+
             items += [recipe.id for recipe in machine.blueprint.recipes]
 
         return list(set(items))
+
+    def unlock_tile(self, tile: int):
+        self.locked_tiles.remove(tile)
 
     def is_last_crop(self, item_id: str) -> bool:
         """Returns true if the given item is the players last crop."""
@@ -149,6 +160,31 @@ class Machine:
         self.time_remaining: float = 0
         self.result: RecipeBlueprint | None = None
 
+    def get_unlock_price(self) -> int | None:
+        """Returns the price to unlock or none if not locked"""
+        if not self.is_locked():
+            return None
+
+        return self.state.blueprint.constants.locked_tiles_prices[self.tile]
+
+    def is_locked(self):
+        """Returns true if this machine is locked"""
+        return self.tile in self.state.locked_tiles
+
+    def unlock(self) -> bool:
+        """Attempt to unlock the machine by paying for it
+
+        Returns true if successful, false otherwise
+        """
+        price = self.get_unlock_price()
+
+        if self.state.player.coins < price:
+            return False
+
+        self.state.player.coins -= price
+        self.state.unlock_tile(self.tile)
+        return True
+
     def get_recipes(self) -> list[RecipeBlueprint]:
         return [
             self.state.blueprint.recipes.get(recipe_id)
@@ -156,6 +192,12 @@ class Machine:
         ]
 
     def get_recipe_map(self) -> dict[str, list[tuple[str, bool]]]:
+        """Get a map of current recipe status of this machine
+
+        Returns a dictionary, mapping recipe IDs to
+        a list of its ingredient tuples in form:
+        [ingredient ID, boolean (true = fulfilled)]
+        """
         result = {}
 
         recipes = self.get_recipes()
@@ -183,7 +225,13 @@ class Machine:
         return self.inventory.to_references()
 
     def remove_last_item(self) -> ItemReference | None:
-        if self.busy:
+        """Attempt to refund the last item added to the inventory.
+
+        Returns none if nothing was removed or
+        an item reference if successful.
+        """
+
+        if self.busy or self.is_locked():
             return None
 
         item_ids = self.inventory.get_all_item_ids()
@@ -201,6 +249,9 @@ class Machine:
 
         Returns the result with an optional error message.
         """
+        if self.is_locked():
+            return False, f'This {self.blueprint.name} is locked'
+
         if self.busy:
             return False, f'{self.blueprint.name} is already busy'
 
@@ -233,11 +284,11 @@ class Machine:
 
         if len(recipes) == 1:
             first = recipes[0]
-            self.set_busy(first)
+            self._set_busy(first)
 
         return True, None
 
-    def set_busy(self, recipe: RecipeBlueprint):
+    def _set_busy(self, recipe: RecipeBlueprint):
 
         # Consume items
         for ingredient_id, ingredient_amount in recipe.recipe:
@@ -265,7 +316,7 @@ class Machine:
         self.time_remaining -= delta_time
 
         if self.time_remaining <= 0:
-            self.finish()
+            self._finish()
 
     def collect(self):
         self.state.player.inventory.add_item(self.result.id, self.result.amount)
@@ -278,7 +329,7 @@ class Machine:
         self.collectable = False
         self.time_remaining = 0
 
-    def finish(self):
+    def _finish(self):
         self.collectable = True
         self.time_remaining = 0
 

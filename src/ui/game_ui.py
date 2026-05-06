@@ -1,9 +1,11 @@
 import pygame
 from pygame.event import Event
 
+import ui
 from state.game_state import GameState
 from ui.assets import GameAssets
 from ui.base_elements import UIElement
+from ui.common import setup
 from ui.elements.effects import EffectUI
 from ui.elements.hud import HudUI
 from ui.elements.order import OrderUI
@@ -40,6 +42,8 @@ class GameUI:
 
         self.assets = GameAssets(self.SCREEN_SIZE)
 
+        # Initialize common module
+        ui.common.setup(self.assets, self.state.blueprint)
 
         # Load grid of machines
         self.assets.tiles = {

@@ -47,11 +47,13 @@ class ConstantsBlueprint:
     def __init__(self,
                  default_coins: int = 0,
                  default_items: list[ItemReference]=None,
-                 default_tiles: dict[int, str]=None):
+                 default_tiles: dict[int, str]=None,
+                 locked_tiles_prices: dict[int, int]=None):
 
         self.default_coins = default_coins
         self.default_items: list[ItemReference] = [] if default_items is None else default_items
         self.default_tiles: dict[int, str] = {} if default_tiles is None else default_tiles
+        self.locked_tiles_prices: dict[int, int] = {} if locked_tiles_prices is None else locked_tiles_prices
 
     @classmethod
     def from_dict(cls, data):
@@ -63,7 +65,11 @@ class ConstantsBlueprint:
             ],
             default_tiles = {
                 int(key): value
-                for key, value in data.get("default_tiles", {}).items()
+                for key, value in data.get("tiles", {}).items()
+            },
+            locked_tiles_prices = {
+                int(key): int(value)
+                for key, value in data.get("locked_tiles", {}).items()
             }
         )
 
