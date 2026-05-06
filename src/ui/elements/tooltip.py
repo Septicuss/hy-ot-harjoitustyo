@@ -9,6 +9,7 @@ from ui.assets import GameAssets
 from ui.base_elements import UIElement, TileUIElement
 from ui.elements.hud import HudUI
 from ui.elements.machine import MachineUI
+from ui.elements.order import OrderUI
 
 
 class TooltipUI(UIElement):
@@ -204,15 +205,47 @@ class TooltipUI(UIElement):
                 title_text=machine.blueprint.name
             )
 
+        # Set HUD tooltip
         if isinstance(tile, HudUI):
-
-
             self.tooltip = tooltip(
                 surface=pygame.Surface((0,0)),
                 padding=self.icon_padding,
                 title_text='Your coins'
             )
-            pass
+
+        # Set order tooltip
+        if isinstance(tile, OrderUI):
+            if not tile.orders or not tile.orders.order:
+                return
+
+            item = self.state.blueprint.recipes.get(tile.orders.order.id)
+
+            offer_text = f'{tile.orders.order.amount} {item.name} for {tile.orders.reward} {'coin' if tile.orders.reward == 1 else 'coins'}'
+            hint_text = '(Drag items here to submit)'
+
+            offer_text_element = self.assets.hint_font.render(offer_text, True, (50,50,50))
+            hint_text_element = self.assets.hint_font.render(hint_text, True, self.text_sub_color)
+
+            elements = [offer_text_element, hint_text_element]
+            width = max(element.get_width() for element in elements)
+            height = sum(element.get_height() for element in elements)
+
+            surface = pygame.Surface((width, height), pygame.SRCALPHA)
+            surface_rect = surface.get_rect()
+
+            offer_rect = offer_text_element.get_rect(center=surface_rect.center)
+            offer_rect.y = 0
+            surface.blit(offer_text_element, offer_rect)
+
+            hint_rect = hint_text_element.get_rect(center=surface_rect.center)
+            hint_rect.y = offer_rect.bottom
+            surface.blit(hint_text_element, hint_rect)
+
+            self.tooltip = tooltip(
+                surface=surface,
+                padding=self.icon_padding,
+                title_text=f'Order'
+            )
 
 
     def update(self, delta_time: float):

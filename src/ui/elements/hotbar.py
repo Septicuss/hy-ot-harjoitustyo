@@ -6,7 +6,9 @@ from pygame import Surface
 from state.game_state import GameState
 from ui.assets import GameAssets, LoadedItemSprites
 from ui.base_elements import TileUIElement
-from ui.elements.effects import ToastEffect
+from ui.elements.effects import ToastEffect, ItemMoveEffect
+from ui.elements.machine import MachineUI
+from ui.elements.order import OrderUI
 
 
 class HotbarState(Enum):
@@ -78,14 +80,47 @@ class HotbarUI(TileUIElement):
             if self.drag_state != HotbarState.DRAGGING:
                 return
 
-            for tile in list(self.assets.tiles.values()):
+            for tile in [*self.assets.tiles.values(), *self.assets.elements]:
                 if tile.hitbox.collidepoint(mouse_pos):
-                    success, error_message = tile.machine.add_item(self.state.player.get_selected_item())
-                    if success:
-                        self.drag_state = HotbarState.IDLE
-                        return
-                    else:
-                        self.assets.effects.submit_toast(ToastEffect('error', error_message or 'Failed to add item'))
+
+                    # Handle dragging item onto machine
+                    if isinstance(tile, MachineUI):
+                        success, error_message = tile.machine.add_item(self.state.player.get_selected_item())
+                        if success:
+                            self.drag_state = HotbarState.IDLE
+                            return
+                        else:
+                            self.assets.effects.submit_toast(ToastEffect('error', error_message or 'Failed to add item'))
+
+                    # Handle dragging item onto order
+                    if isinstance(tile, OrderUI):
+                        reward = tile.orders.reward
+
+                        success, error_message = tile.orders.submit_one(self.state.player.get_selected_item())
+                        if success:
+                            coin = self.assets.get_single_sprite(self.state.blueprint, 'coin', 4).main
+
+                            self.assets.effects.submit_item_move(ItemMoveEffect(
+                                coin,
+                                tile.tile_rect.center,
+                                (self.assets.screen_width / 2, self.assets.screen_height - 100)
+                                )
+                            )
+
+                            self.assets.effects.submit_toast(ToastEffect('success', f'+ {reward} Coins (Order)'))
+
+                            tile.reset()
+
+                            self.drag_state = HotbarState.IDLE
+                            return
+                        else:
+                            if error_message:
+                                self.drag_state = HotbarState.SPRING
+                                self.assets.effects.submit_toast(ToastEffect('error', error_message))
+                            else:
+                                self.drag_state = HotbarState.IDLE
+                                return
+
 
             self.drag_state = HotbarState.SPRING
             self.drag_position = mouse_pos

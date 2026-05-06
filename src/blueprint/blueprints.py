@@ -139,6 +139,7 @@ class RecipeBlueprint(GameElementBlueprint):
                  amount: int = 1,
                  *,
                  recipe_type: RecipeType,
+                 price: tuple[int, int] = None,
                  recipe: list[ItemReference]):
         super().__init__(recipe_id, name)
         self.id = recipe_id
@@ -146,6 +147,7 @@ class RecipeBlueprint(GameElementBlueprint):
         self.time = time
         self.amount = amount
         self.type = recipe_type
+        self.price = price
         self.recipe = recipe
 
     def __repr__(self):
@@ -164,12 +166,20 @@ class RecipeBlueprint(GameElementBlueprint):
         recipe = ([ItemReference.from_dict(recipe_entry) for recipe_entry in data["recipe"]]
                   if "recipe" in data else default_recipe) # use default recipe above if missing
 
+        price = (1, 10)
+
+        if "price" in data:
+            low = data["price"]["low"]
+            high = data["price"]["high"]
+            price = (low, high)
+
         return cls(
             recipe_id= recipe_id,
             name = data["name"],
             time = data["time"],
             amount = int(data.get("amount", 1)),
             recipe_type=RecipeType(data.get("type", "item")),
+            price=price,
             recipe = recipe
         )
 

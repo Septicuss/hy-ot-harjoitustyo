@@ -56,7 +56,7 @@ class MachineUI(TileUIElement):
         self.assets.effects.submit_item_move(ItemMoveEffect(
                 icon_sprite,
                 self.tile_rect.center,
-                (self.assets.screen_width / 2, self.assets.screen_height + 50)
+                (self.assets.screen_width / 2, self.assets.screen_height - 100)
             )
         )
 
@@ -159,5 +159,5 @@ class MachineUI(TileUIElement):
                     self.assets.effects.submit_item_move(ItemMoveEffect(
                         item_sprite,
                         self.tile_rect.center,
-                        (self.assets.screen_width / 2, self.assets.screen_height + 50)
+                        (self.assets.screen_width / 2, self.assets.screen_height - 100)
                     ))

@@ -4,6 +4,8 @@ from blueprint.blueprints import MachineBlueprint, ItemReference, RecipeBlueprin
 from blueprint.game_blueprint import GameBlueprint
 from save.save import GameSave
 from state import utils
+from state.orders import Orders
+
 
 class GameState:
     """Class for holding and controlling the entire game state"""
@@ -11,6 +13,7 @@ class GameState:
     def __init__(self, blueprint: GameBlueprint, save: GameSave):
         self.blueprint = blueprint
         self.player = Player(self)
+        self.orders = Orders(self)
         self.timer: float = 0
         self.tiles: dict[int, Machine] = {}
 
@@ -27,6 +30,20 @@ class GameState:
             for item_ref in self.blueprint.constants.default_items:
                 self.player.inventory.add_item(item_ref.id, item_ref.amount)
 
+    def get_available_items(self) -> list[str]:
+        """Returns a list of IDs that the player can access at this moment in the game."""
+        items = []
+
+        for tile, machine in self.tiles.items():
+            items += [recipe.id for recipe in machine.blueprint.recipes]
+
+        return list(set(items))
+
+    def is_last_crop(self, item_id: str) -> bool:
+        """Returns true if the given item is the players last crop."""
+        item = self.blueprint.recipes.get(item_id)
+        return item.type == RecipeType.CROP and self.player.inventory.get_item_amount(item.id) == 1
+
     def get_tile(self, tile: int) -> "Machine | None":
         self.tiles.get(tile)
 
@@ -42,6 +59,9 @@ class GameState:
 
         if selected_item is None and len(self.player.inventory.get_all_item_ids()) > 0 or selected_item_amount <= 0:
             self.player.cycle_selected_item()
+
+        # Update orders
+        self.orders.update(delta_time=delta_time)
 
         # Update machines
         for machine in self.tiles.values():
@@ -194,12 +214,10 @@ class Machine:
             item_name = item.name
             return False, f'{item_name} is not used in {self.blueprint.name}'
 
-        is_crop = item.type == RecipeType.CROP
         is_farm = self.blueprint.render == MachineRenderType.CROP
-        is_last_item = is_crop and not is_farm and self.state.player.inventory.get_item_amount(item.id) == 1
 
         # Prevent player from using their last crop
-        if is_last_item:
+        if not is_farm and self.state.is_last_crop(item.id):
             return False, f'Cannot use last crop'
 
         # Transfer item from players to machines inventory

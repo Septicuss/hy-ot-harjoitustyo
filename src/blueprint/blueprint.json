@@ -18,9 +18,7 @@
     "default_tiles": {
       "0": "farmland",
       "1": "farmland",
-      "2": "farmland",
-      "3": "bakery",
-      "4": "juice_press"
+      "2": "farmland"
     }
   },
   "sprites": {
@@ -60,6 +58,7 @@
       "type": "crop",
       "amount": 2,
       "time": 5,
+      "price": {"low":  1, "high":  2},
       "recipe": [{"id": "wheat"}]
     },
     {
@@ -68,6 +67,7 @@
       "amount": 2,
       "type": "crop",
       "time": 5,
+      "price": {"low":  1, "high":  2},
       "recipe": [{"id": "soy"}]
     },
     {
@@ -76,12 +76,14 @@
       "amount": 2,
       "type": "crop",
       "time": 5,
+      "price": {"low":  1, "high":  2},
       "recipe": [{"id": "berry"}]
     },
     {
       "id": "berry_juice",
       "name": "Berry Juice",
       "time": 10,
+      "price": {"low":  10, "high":  20},
       "recipe": [
         {
           "id": "berry",
@@ -93,6 +95,7 @@
       "id": "smoothie",
       "name": "Smoothie",
       "time": 10,
+      "price": {"low":  10, "high":  20},
       "recipe": [
         {
           "id": "berry",
@@ -107,6 +110,7 @@
       "id": "berry_bread",
       "name": "Berry Bread",
       "time": 10,
+      "price": {"low":  10, "high":  20},
       "recipe": [
         {
           "id": "berry",
@@ -122,6 +126,7 @@
       "id": "soy_bun",
       "name": "Soy Bun",
       "time": 10,
+      "price": {"low":  10, "high":  20},
       "recipe": [
         {
           "id": "soy",

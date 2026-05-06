@@ -6,6 +6,7 @@ from ui.assets import GameAssets
 from ui.base_elements import UIElement
 from ui.elements.effects import EffectUI
 from ui.elements.hud import HudUI
+from ui.elements.order import OrderUI
 from ui.elements.tooltip import TooltipUI
 from ui.elements.hotbar import HotbarUI
 from ui.elements.machine import MachineUI
@@ -49,12 +50,14 @@ class GameUI:
         effect = EffectUI(self.assets, self.state)
         self.assets.effects = effect
         hud_ui = HudUI(self.assets, self.state)
+        order_ui = OrderUI(self.assets, self.state)
         self.assets.elements = [
-            hud_ui
+            hud_ui,
+            order_ui
         ]
-
         self.elements: list[UIElement] = [
             hud_ui,
+            order_ui,
             effect,
             TooltipUI(self.assets, self.state),
             HotbarUI(self.assets, self.state),
