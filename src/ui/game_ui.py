@@ -120,6 +120,7 @@ class GameUI:
     def __handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                self.state.save_state()
                 self.running = False
                 continue
 

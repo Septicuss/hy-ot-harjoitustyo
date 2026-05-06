@@ -2,41 +2,77 @@ from typing import Literal
 
 from blueprint.blueprints import MachineBlueprint, ItemReference, RecipeBlueprint, RecipeType, MachineRenderType
 from blueprint.game_blueprint import GameBlueprint
-from save.save import GameSave
-from state import utils
+from save.save import GameSave, GameSaves
+from state.inventory import Inventory
 from state.orders import Orders
 
 
 class GameState:
     """Class for holding and controlling the entire game state"""
 
-    def __init__(self, blueprint: GameBlueprint, save: GameSave):
+    def __init__(self, blueprint: GameBlueprint, saves: GameSaves):
+        self.save_slot: int = 1
+        self.saves = saves
+
+        save = self.saves.get_save(self.save_slot)
+
+        if save is None:
+            raise RuntimeError('Unable to load save')
+
         self.blueprint = blueprint
+
         self.player = Player(self)
         self.orders = Orders(self)
+
         self.timer: float = 0
+        self.autosave_timer: float = 0
         self.tiles: dict[int, Machine] = {}
         self.locked_tiles: list[int] = []
+
+        # Initialize tiles
+        for tile, machine_id in self.blueprint.constants.default_tiles.items():
+            machine_blueprint = self.blueprint.machines.get(machine_id)
+            machine = Machine(self, machine_blueprint, tile)
+            self.tiles[tile] = machine
 
         # Initialize defaults on first game run
         if save.is_first_run:
             # Set default locked tiles
             self.locked_tiles = [int(tile) for tile in self.blueprint.constants.locked_tiles_prices.keys()]
 
-            # Set default tiles
-            for tile, machine_id in self.blueprint.constants.default_tiles.items():
-                machine_blueprint = self.blueprint.machines.get(machine_id)
-                machine = Machine(self, machine_blueprint, tile)
-
-                self.set_tile(tile, machine)
-
-
             # Add default items
             for item_ref in self.blueprint.constants.default_items:
                 self.player.inventory.add_item(item_ref.id, item_ref.amount)
 
+            # Save now to keep defaults
+            self.save_state()
+
+        else: # Load state from save
+            self.locked_tiles = save.locked_tiles
+            self.player.coins = save.coins
+
+            for item_id, item_amount in save.inventory:
+                self.player.inventory.add_item(item_id, item_amount)
+
+    def save_state(self):
+        """Write the current state to the current save slot."""
+
+        save = self._current_state_to_save()
+        self.saves.save(save, self.save_slot)
+
+    def _current_state_to_save(self) -> GameSave:
+        """Returns the current state as a GameSave."""
+
+        return GameSave(
+            is_first_run=False,
+            inventory=self.player.inventory.to_references(),
+            coins=self.player.coins,
+            locked_tiles=self.locked_tiles
+        )
+
     def get_available_items(self) -> list[str]:
         """Returns a list of IDs that the player can access at this moment in the game."""
+
         items = []
 
         for tile, machine in self.tiles.items():
@@ -48,21 +84,25 @@ class GameState:
         return list(set(items))
 
     def unlock_tile(self, tile: int):
+        """Unlocks the given tile."""
+
         self.locked_tiles.remove(tile)
 
     def is_last_crop(self, item_id: str) -> bool:
         """Returns true if the given item is the players last crop."""
+
         item = self.blueprint.recipes.get(item_id)
         return item.type == RecipeType.CROP and self.player.inventory.get_item_amount(item.id) == 1
 
-    def get_tile(self, tile: int) -> "Machine | None":
-        self.tiles.get(tile)
-
-    def set_tile(self, tile: int, machine: "Machine"):
-        self.tiles[tile] = machine
-
     def update(self, delta_time: float):
+        """Primary update loop of the game state."""
+
         self.timer += delta_time
+        self.autosave_timer += delta_time
+
+        if self.autosave_timer > 10:
+            self.autosave_timer = 0
+            self.save_state()
 
         # Set selected item if not set
         selected_item = self.player.get_selected_item()
@@ -78,72 +118,6 @@ class GameState:
         for machine in self.tiles.values():
             machine.update(delta_time=delta_time)
 
-class Inventory:
-    """Represents an inventory which can hold items up to its item limit."""
-
-    def __init__(self, item_limit: int = -1):
-        self._items: dict[str, int] = {}
-        self._item_limit = item_limit
-
-    def is_full(self):
-        """Returns whether the inventory is full and cannot accept any more items."""
-        if self._item_limit == -1:
-            return False
-        return utils.item_count_sum(self.to_references()) >= self._item_limit
-
-    def size(self) -> int:
-        """Returns the amount of unique items in the inventory"""
-        return len(self._items)
-
-    def get_all_items(self) -> dict[str, int]:
-        """Get a dict of all items [id, amount]"""
-        return self._items
-
-    def get_all_item_ids(self) -> list[str]:
-        """Get all unique item ids."""
-        return list(set(self._items.keys()))
-
-    def get_item_amount(self, item_id: str) -> int:
-        """Get the amount of the given item in the inventory."""
-        return self._items.get(item_id, 0)
-
-    def add_item(self, item_id: str, amount: int = 1):
-        """Force adds an item with the given amount to the inventory."""
-        previous = self._items.get(item_id, 0)
-        self._items[item_id] = previous + amount
-
-    def clear(self):
-        """Fully clear the inventory."""
-        self._items.clear()
-
-    def remove_item(self, item_id: str, amount: int = 1) -> ItemReference | None:
-        """Remove the given amount of the given item from the inventory.
-
-        Returns:
-            ItemReference | None: If found, returns a reference to
-             the removed item and removed amount.
-        """
-        if item_id not in self._items:
-            return None
-
-        start_amount = self._items[item_id]
-
-        self._items[item_id] -= amount
-
-        if self._items[item_id] <= 0:
-            del self._items[item_id]
-            return ItemReference(item_id, start_amount)
-
-        return ItemReference(item_id, amount)
-
-    def to_references(self) -> list[ItemReference]:
-        """Get all items as item references."""
-        references = []
-
-        for item in self.get_all_items().items():
-            references.append(ItemReference(item[0], item[1]))
-
-        return references
 
 class Machine:
     def __init__(self, state: GameState, blueprint: MachineBlueprint, tile: int, on_finish=None):
