@@ -1,6 +1,10 @@
 from typing import Literal
 
-from blueprint.blueprints import MachineBlueprint, ItemReference, RecipeBlueprint, RecipeType, MachineRenderType
+from blueprint.blueprints import (MachineBlueprint,
+                                  ItemReference,
+                                  RecipeBlueprint,
+                                  RecipeType,
+                                  MachineRenderType)
 from blueprint.game_blueprint import GameBlueprint
 from save.save import GameSave, GameSaves
 from state.inventory import Inventory
@@ -21,24 +25,42 @@ class GameState:
 
         self.blueprint = blueprint
 
+        # State objects
         self.player = Player(self)
         self.orders = Orders(self)
 
+        # State
         self.timer: float = 0
         self.autosave_timer: float = 0
         self.tiles: dict[int, Machine] = {}
         self.locked_tiles: list[int] = []
 
-        # Initialize tiles
+        self._initialize_tiles()
+        self._load_defaults(save)
+        self._load_save(save)
+
+    def _initialize_tiles(self):
         for tile, machine_id in self.blueprint.constants.default_tiles.items():
             machine_blueprint = self.blueprint.machines.get(machine_id)
             machine = Machine(self, machine_blueprint, tile)
             self.tiles[tile] = machine
 
+    def _load_save(self, save: GameSave):
+        if not save.is_first_run:
+            self.locked_tiles = save.locked_tiles
+            self.player.coins = save.coins
+
+            for item_id, item_amount in save.inventory:
+                self.player.inventory.add_item(item_id, item_amount)
+
+    def _load_defaults(self, save: GameSave):
         # Initialize defaults on first game run
         if save.is_first_run:
             # Set default locked tiles
-            self.locked_tiles = [int(tile) for tile in self.blueprint.constants.locked_tiles_prices.keys()]
+            self.locked_tiles = [
+                int(tile)
+                for tile in self.blueprint.constants.locked_tiles_prices.keys()
+            ]
 
             # Add default items
             for item_ref in self.blueprint.constants.default_items:
@@ -46,13 +68,6 @@ class GameState:
 
             # Save now to keep defaults
             self.save_state()
-
-        else: # Load state from save
-            self.locked_tiles = save.locked_tiles
-            self.player.coins = save.coins
-
-            for item_id, item_amount in save.inventory:
-                self.player.inventory.add_item(item_id, item_amount)
 
     def save_state(self):
         """Write the current state to the current save slot."""
@@ -75,7 +90,7 @@ class GameState:
 
         items = []
 
-        for tile, machine in self.tiles.items():
+        for machine in self.tiles.values():
             if machine.is_locked():
                 continue
 
@@ -108,7 +123,9 @@ class GameState:
         selected_item = self.player.get_selected_item()
         selected_item_amount = self.player.inventory.get_item_amount(selected_item)
 
-        if selected_item is None and len(self.player.inventory.get_all_item_ids()) > 0 or selected_item_amount <= 0:
+        has_any_items = len(self.player.inventory.get_all_item_ids()) > 0
+
+        if selected_item is None and has_any_items or selected_item_amount <= 0:
             self.player.cycle_selected_item()
 
         # Update orders
@@ -243,7 +260,7 @@ class Machine:
 
         # Prevent player from using their last crop
         if not is_farm and self.state.is_last_crop(item.id):
-            return False, f'Cannot use last crop'
+            return False, 'Cannot use last crop'
 
         # Transfer item from players to machines inventory
         self.state.player.inventory.remove_item(item_id, 1)

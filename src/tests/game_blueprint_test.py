@@ -14,6 +14,14 @@ class TestGameBlueprint(unittest.TestCase):
         except ValueError as error:
             self.fail("default game blueprint failed validation: " +  str(error))
 
+    def test_item_reference_yields_fields_correctly(self):
+        reference = ItemReference("wheat", 10)
+
+        ref_id, ref_amount = reference
+        self.assertEqual(ref_id, "wheat")
+        self.assertEqual(ref_amount, 10)
+
+
     def test_missing_reference_raises_error(self):
         # Recipe refers to non-existing "berry"
         data = {
@@ -76,6 +84,30 @@ class TestGameBlueprint(unittest.TestCase):
         }
         self.assertRaisesRegex(ValueError, "machine 'test' did not have sprite 'test_busy'", GameBlueprint.load_from_json, json.dumps(data))
 
+    def test_crop_sprites_mapped_correctly(self):
+        data = {
+            "sprites": {
+                "wheat": [0,0],
+                "wheat_stage_1": [1,1],
+                "wheat_stage_2": [2,2],
+                "wheat_stage_3": [3,3],
+            },
+            "recipes": [
+                {"id": "wheat", "name": "wheat", "time": 5, "type": RecipeType.CROP.value}
+            ]
+        }
+        blueprint = GameBlueprint.load_from_json(json.dumps(data))
+
+        sprites = blueprint.sprites.get_crop_sprites("wheat")
+        self.assertEqual(sprites.main, (0,0))
+        self.assertEqual(sprites.stage_1, (1,1))
+        self.assertEqual(sprites.stage_2, (2,2))
+        self.assertEqual(sprites.stage_3, (3,3))
+
+        self.assertEqual(blueprint.sprites.get_sprite("wheat"), (0,0))
+        self.assertEqual(blueprint.sprites.get_sprite("wheat_stage_1"), (1,1))
+
+
     def test_required_machine_slots_fails_with_nonexistent_machine(self):
         # Calling without a defined machine fails
         data = {}
@@ -124,6 +156,21 @@ class TestGameBlueprint(unittest.TestCase):
         self.assertIsNotNone(blueprint.get_game_element("b"), "blueprint did not return a machine blueprint with id 'b'")
         self.assertIsNone(blueprint.get_game_element("c"), "blueprint returned a blueprint for a missing id 'c'")
 
+    def test_recipe_as_id_array_correct(self):
+        data = {
+            "recipes": [
+                {"id": "a", "name": "a", "time": 5},
+                {"id": "b", "name": "b", "time": 5},
+                {"id": "c", "name": "c", "time": 5, "recipe": [{"id": "a"}, {"id": "b"}, {"id": "c"}]},
+            ],
+            "machines": [
+                {"id": "d", "name": "d", "recipes": ["c"]},
+            ]
+        }
+        blueprint = GameBlueprint.load_from_json(json.dumps(data), ignore_sprites=True)
+        array = blueprint.recipes.get("c").get_recipe_as_id_array()
+
+        self.assertEqual(array, ["a", "b", "c"])
 
 class TestDefaultGameBlueprint(unittest.TestCase):
     # TODO: make this test not rely on the default game blueprint
@@ -166,6 +213,3 @@ class TestDefaultGameBlueprint(unittest.TestCase):
             to_id_list(self.blueprint.get_matching_recipes(input_items)),
             ["wheat", "soy_bun", "berry_bread"]
         )
-
-
-    pass

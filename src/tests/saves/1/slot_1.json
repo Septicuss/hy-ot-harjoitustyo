@@ -1,0 +1,18 @@
+{
+  "inventory": [
+    {
+      "id": "berry",
+      "amount": 1
+    },
+    {
+      "id": "soy",
+      "amount": 1
+    },
+    {
+      "id": "wheat",
+      "amount": 1
+    }
+  ],
+  "coins": 55,
+  "locked_tiles": [1, 2, 3]
+}

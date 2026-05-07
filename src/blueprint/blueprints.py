@@ -30,7 +30,16 @@ class ItemReference:
         return f"ItemReference({self.id}, {self.amount})"
 
     def __eq__(self, other):
-        return self.id == other.id and self.amount == other.amount
+        if not isinstance(other, ItemReference):
+            return NotImplemented
+
+        return (
+            self.id == other.id and
+            self.amount == other.amount
+        )
+
+    def __hash__(self):
+        return hash((self.id, self.amount))
 
     def __iter__(self):
         yield self.id
@@ -51,9 +60,9 @@ class ConstantsBlueprint:
                  locked_tiles_prices: dict[int, int]=None):
 
         self.default_coins = default_coins
-        self.default_items: list[ItemReference] = [] if default_items is None else default_items
-        self.default_tiles: dict[int, str] = {} if default_tiles is None else default_tiles
-        self.locked_tiles_prices: dict[int, int] = {} if locked_tiles_prices is None else locked_tiles_prices
+        self.default_items: list[ItemReference] = default_items or []
+        self.default_tiles: dict[int, str] = default_tiles or {}
+        self.locked_tiles_prices: dict[int, int] = locked_tiles_prices or {}
 
     @classmethod
     def from_dict(cls, data):

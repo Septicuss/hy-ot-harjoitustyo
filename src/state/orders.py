@@ -1,13 +1,11 @@
-import json
 import random
 
 from blueprint.blueprints import ItemReference
-import state.game_state as game_state
 
 
 class Orders:
 
-    def __init__(self, state: "game_state.GameState"):
+    def __init__(self, state: "GameState"):
         self.state = state
 
         self.update_timer: float = 0

@@ -11,6 +11,9 @@ class GameStateInventoryTest(unittest.TestCase):
         self.inventory.add_item("wheat")
         self.inventory.add_item("berry", 5)
 
+    def test_inventory_shows_correct_size(self):
+        self.assertEqual(self.inventory.size(), 2)
+
     def test_default_inventory_infinite_slots(self):
         self.assertEqual(self.inventory._item_limit, -1)
 

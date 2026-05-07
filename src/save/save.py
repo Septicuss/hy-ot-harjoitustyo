@@ -1,5 +1,6 @@
 import json
 import os
+from json import JSONDecodeError
 
 from blueprint.blueprints import ItemReference
 
@@ -20,7 +21,10 @@ class GameSave:
 
     def to_dict(self) -> dict:
         return {
-            "inventory": [{"id": reference.id, "amount": reference.amount} for reference in self.inventory],
+            "inventory": [
+                {"id": reference.id, "amount": reference.amount}
+                for reference in self.inventory
+            ],
             "coins": self.coins,
             "locked_tiles": self.locked_tiles,
         }
@@ -64,8 +68,11 @@ class GameSaves:
 
         data: dict | None = None
 
-        with open(file_path, 'r', encoding='UTF-8') as file:
-            data = json.load(file)
+        try:
+            with open(file_path, 'r', encoding='UTF-8') as file:
+                data = json.load(file)
+        except JSONDecodeError:
+            pass
 
         if not data:
             return GameSave()
