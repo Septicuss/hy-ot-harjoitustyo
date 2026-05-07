@@ -20,7 +20,7 @@ class Orders:
         self.update_timer = 0
         return False
 
-    def _set_next_order(self):
+    def _set_next_order(self) -> tuple[ItemReference, int]:
         available_items = self.state.get_available_items()
 
         next_item_id = random.choice(available_items)
@@ -30,6 +30,8 @@ class Orders:
 
         self.order = ItemReference(next_item_id, next_item_amount)
         self.reward = next_item_reward
+
+        return self.order, self.reward
 
     def complete(self):
         self.state.player.coins += self.reward

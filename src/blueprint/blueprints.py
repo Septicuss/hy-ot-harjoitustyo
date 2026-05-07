@@ -67,10 +67,10 @@ class ConstantsBlueprint:
     @classmethod
     def from_dict(cls, data):
         return cls(
-            default_coins = int(data["default_coins"]),
+            default_coins = int(data.get("default_coins", 0)),
             default_items = [
                 ItemReference.from_dict(item_data)
-                for item_data in data["default_items"]
+                for item_data in data.get("default_items", [])
             ],
             default_tiles = {
                 int(key): value

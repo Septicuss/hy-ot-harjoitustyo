@@ -96,3 +96,12 @@ class GameSaves:
 
         with open(file_path, 'w', encoding='UTF-8') as file:
             json.dump(data, file)
+
+    @classmethod
+    def load_from_json(cls, data: str) -> GameSave | None:
+        data = json.loads(data)
+
+        if not data:
+            return None
+
+        return GameSave.from_dict(data)

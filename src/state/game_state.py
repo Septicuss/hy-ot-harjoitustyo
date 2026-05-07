@@ -129,6 +129,7 @@ class GameState:
             self.player.cycle_selected_item()
 
         # Update orders
+        print("UPADING ORDERS")
         self.orders.update(delta_time=delta_time)
 
         # Update machines
