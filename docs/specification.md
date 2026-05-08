@@ -9,28 +9,27 @@ Excess crops can be used to craft products to complete randomized orders and gai
 
 ## 🛠️ Todo
 
-**Current state**: Can drag wheat seed from hotbar onto any 
-of the two default machines, which will make the machine busy for 10s.
+**Current state**: Game is done.
 
 * `[Blueprint]` Loading game blueprints from `blueprints.json` ✅
 * `[State]` Machines and crafting ✅
 * `[State]` Player & machine inventory ✅
-* `[State]` Orders 🕛
-* `[State]` Automatic game saves using `save` module 🕛
+* `[State]` Orders ✅
+* `[State]` Automatic game saves using `save` module ✅
 * `[State]` Tile system for machines & farmland ✅
-* `[State]` Buying & selling tiles 🕛
+* `[State]` Buying tiles ✅
 * `[UI]` Loading UI assets from blueprints & bitmaps ✅
 * `[UI]` Hotbar ✅
 * `[UI]` Hotbar item selection (Q + E / left + right) ✅
 * `[UI]` Dragging items from hotbar onto machines ✅
-* `[UI]` Dragging items from hotbar onto orders 🕛
+* `[UI]` Dragging items from hotbar onto orders ✅
 * `[UI]` Machine UI (preparing items & showing recipes) ✅
-* `[UI]` Order UI (rendering orders) 🕛
+* `[UI]` Order UI (rendering orders) ✅
 * `[UI]` Rendering the tile system (machines) ✅
-* `[UI]` Buying and selling tiles (machines) 🕛
+* `[UI]` Buying tiles (machines) ✅
 * `[UI]` Tooltips ✅
 * `[UI]` Notification Toasts ✅
-* `[Save]` Saving and loading saves (`save` module) 🕛
+* `[Save]` Saving and loading saves (`save` module) ✅
 
 
 ## Game
@@ -43,46 +42,25 @@ All interactions are either tapping or dragging elements with the cursor.
 Flow:
 1) Player plants crops by dragging them onto farmland 
 2) Crops take time to grow 
-3) When grown, crops are harvested with a scythe 
+3) When grown, crops are harvested by clicking on them
 4) Crops are put into buildings to make recipes (or used in orders)
 5) Recipes are taken from buildings and put into orders
 6) Completing orders gives coins 
-7) Coins can be used to upgrade farmland grid size or buildings
+7) Coins can be used to buy more tiles
 
 ### UI
 
-A rough wireframe view of the game can be seen below 
-(the final game will use stylized pixel art):
+Final version of the UI can be seen here:
+<img width="325" height="340" alt="image" src="https://github.com/user-attachments/assets/44a46bea-3ceb-4bda-9fa9-a8bcf92af9d7" />
 
-<img width="842" height="608" alt="image" src="https://github.com/user-attachments/assets/37409ae8-3272-4410-a245-c20b46e4e7da" />
+1. **Your hotbar**. Use buttons Q + E to cycle the selected item. By holding and dragging the item in the middle, you can move the item.
+2. **Machine tiles**. Machines accept items dragged over them and craft them into recipes. Once done, they can be picked up. As you can see most tiles are locked behind a coin amount.
+3. **Orders**. This is the goal of the game. By dragging the required items here, you will gain coins, which can be used to unlock more machines.
 
-**Edit 10.4:** More developed UI mockups:
-![UI mockup](./images/ui_mockup.png)
-
-**Hotbar**: Any item in the hotbar can be clicked and dragged onto other elements. 
-For example dragging the scythe onto the farm will harvest the crops. 
-Tapping on seeds or items opens up a small selection box with item icons and amounts, so
-you can switch which item will be used.
-
-**Farmland**: A grid of crops. Crops are planted by dragging them from the hotbar
-onto a free grid slot. Once planted, a timer starts. When a timer is over 
-(and crop has visually grown), it can be harvested with a draggable scythe from the hotbar.
-
-**Buildings**: Each building has its own recipes for products. 
-Tapping on a building shows a list of recipes. Dragging the appropriate items
-onto the building will start a timer and once finished, tapping will
-add the recipe result to the players items (bread for example).
-
-**Orders**: A simple list, containing orders. Orders show which items they need.
-Items can be dragged from hotbar onto orders to fulfill them. Once fulfilled,
-orders will grant coins.
-
-**HUD**: Displays the coins (and possibly a level) a player has. Tapping coins/level
-three times will bring up a prompt to reset the farm progress.
+See [The Guide](https://github.com/Septicuss/hy-ot-harjoitustyo/blob/main/docs/guide.md) to see more UI.
 
 ## Further development
 
 - Separate farm save files to allow for multiple farms without resets
 - More content: buildings, crops, items (can be pretty easy to do with a data-driven system)
-- More tools, for example a hose to water crops
 - Farming statistics
