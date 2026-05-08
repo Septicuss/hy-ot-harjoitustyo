@@ -129,7 +129,6 @@ class GameState:
             self.player.cycle_selected_item()
 
         # Update orders
-        print("UPADING ORDERS")
         self.orders.update(delta_time=delta_time)
 
         # Update machines
@@ -138,6 +137,8 @@ class GameState:
 
 
 class Machine:
+    """Class for handling the state of a machine."""
+
     def __init__(self, state: GameState, blueprint: MachineBlueprint, tile: int, on_finish=None):
         self.state = state
         self.blueprint = blueprint
@@ -178,6 +179,7 @@ class Machine:
         return True
 
     def get_recipes(self) -> list[RecipeBlueprint]:
+        """Get a list of recipes available for this machine."""
         return [
             self.state.blueprint.recipes.get(recipe_id)
             for recipe_id, _ in self.blueprint.recipes
@@ -214,6 +216,7 @@ class Machine:
         return result
 
     def get_items(self) -> list[ItemReference]:
+        """Get a list of all items in the machines inventory."""
         return self.inventory.to_references()
 
     def remove_last_item(self) -> ItemReference | None:
@@ -311,6 +314,8 @@ class Machine:
             self._finish()
 
     def collect(self):
+        """A method to trigger collecting the machines result item."""
+
         self.state.player.inventory.add_item(self.result.id, self.result.amount)
 
         if self.on_finish:
@@ -328,6 +333,7 @@ class Machine:
 
 
 class Player:
+    """Class representing the players state."""
 
     def __init__(self, game: GameState):
         self.coins = game.blueprint.constants.default_coins
