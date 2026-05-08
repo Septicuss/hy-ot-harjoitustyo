@@ -1,7 +1,7 @@
 import unittest
 
 from blueprint.blueprints import ItemReference
-from state.game_state import Inventory
+from state.inventory import Inventory
 
 
 class GameStateInventoryTest(unittest.TestCase):
