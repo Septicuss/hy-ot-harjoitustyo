@@ -1,7 +1,7 @@
 import unittest
 
-from blueprint.blueprints import ItemReference
 import state.utils as utils
+from blueprint.blueprints import ItemReference
 
 
 class TestGameStateUtils(unittest.TestCase):

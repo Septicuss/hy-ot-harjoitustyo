@@ -2,7 +2,6 @@ import json
 from dataclasses import fields, dataclass
 from pathlib import Path
 from typing import Self
-from state import utils
 
 from blueprint.blueprints import (
     RecipeBlueprint,
@@ -12,6 +11,7 @@ from blueprint.blueprints import (
     SpritesBlueprint,
     ItemReference
 )
+from state import utils
 
 
 def _validate_sprites(item_type: str, ids: list[str], get_sprites_func):

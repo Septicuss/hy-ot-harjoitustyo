@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING
+
 from blueprint.blueprints import MachineBlueprint, RecipeBlueprint, ItemReference, MachineRenderType
 from state.inventory import Inventory
 

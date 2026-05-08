@@ -7,6 +7,7 @@ from state.game_state import GameState
 from ui.assets import GameAssets
 from ui.base_elements import UIElement
 
+
 class HudState(TypedDict):
     coins: int
 
