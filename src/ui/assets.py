@@ -65,7 +65,6 @@ class GameAssets:
         )
 
     def get_recipe_sprites(self, blueprint: GameBlueprint, item_id: str) -> LoadedItemSprites:
-        # TODO: Create an item sprites method in sprites blueprint
         recipe = blueprint.recipes.get(item_id)
         recipe_sprite_mappings = blueprint.sprites.get_recipe_sprites(recipe_id=item_id, recipe_type=recipe.type)
         return LoadedItemSprites(

@@ -276,7 +276,6 @@ class TooltipUI(UIElement):
 
     def draw(self, surface: Surface):
 
-        # TODO: avoid recalculation by checking last mouse pos & save coord
         if self.tooltip_tile and self.tooltip:
             mx, my = pygame.mouse.get_pos()
             width = self.tooltip.get_width()

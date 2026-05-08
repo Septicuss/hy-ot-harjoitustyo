@@ -173,7 +173,6 @@ class TestGameBlueprint(unittest.TestCase):
         self.assertEqual(array, ["a", "b", "c"])
 
 class TestDefaultGameBlueprint(unittest.TestCase):
-    # TODO: make this test not rely on the default game blueprint
 
     def setUp(self):
         self.blueprint = GameBlueprint.load_from_file(default_blueprint_path)

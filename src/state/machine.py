@@ -123,7 +123,7 @@ class Machine:
         if self.inventory.is_full():
             return False, f'{self.blueprint.name} is full'
 
-        ids = {ingredient.id for recipe in self.get_recipes() for ingredient in recipe.recipe}
+        ids = {ingredient.id for recipe in self.get_recipes() for ingredient in list(recipe.recipe)}
         item = self.state.blueprint.recipes.get(item_id)
 
         if not item_id in ids:
