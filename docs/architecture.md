@@ -76,8 +76,23 @@ The state tracks:
 
 ### UI
 
-`GameState` state is injected into `GameUI`, which uses it as a source of truth to draw the UI.
-The UI also calls `GameState#update(delta: float)`, which in turn propagates the updates to machines.
-Machines use the delta to calculate when recipes
-are complete using a timer.
+The UI is handled in a single `GameUI` class with `GameState` as a dependency. 
+`GameUI` uses blueprints and the state to render the UI. 
 
+The UI interact with the state through:
+- calling `GameState#update(delta: float)`, which in turn propagates the updates to machines, orders and for example the autosave timer.
+Machines use the delta to calculate when recipes are complete using a timer.
+- calling machine functions, like `Machine#add_item()` and `Machine#collect()` to collect ready items
+- calling order functions, like `Orders.submit_one()` to submit an item to an order
+- calling `GameState#save()` to save the game when pygame receives an exit event
+
+Most such UI <-> state functions modify the state and return a success value. 
+The UI reacts to state changes mostly by checking if cached values have changed (like re-rendering coins in the HUD) 
+For example items submitted to an order must match by ID.
+
+Architecturally, the UI is built out of `UIElement`s. 
+All UI elements inherit the `UIElement` class.
+`UIElements` are kept track of in `GameUI`, 
+and within the games ticking loop (60fps), calls `UIElement#update(delta_time)` and `UIElement#draw(surface)` 
+for elements to check for state updates and then draw the results. 
+Elements also have QOL features like having an integer based draw order `UIElement#order() -> int`
